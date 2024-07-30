@@ -60,9 +60,25 @@ export function BoardView() {
                 </Flex>
               </Flex>
             </Flex>
-            <Textarea resize={"none"} minH={"500px"} readOnly>
-              {board.boardContent}
-            </Textarea>
+            <Textarea
+              resize={"none"}
+              minH={"500px"}
+              value={board.boardContent}
+              readOnly
+            />
+            <Center>
+              <Box
+                m={2}
+                align={"center"}
+                alignContent={"center"}
+                w={"80px"}
+                h={"80px"}
+                rounded={"full"}
+                border={"1px solid"}
+              >
+                <FontAwesomeIcon size={"3x"} icon={faThumbsUp} />
+              </Box>
+            </Center>
           </Box>
           <BoardCommentComponent />
         </OuttestBox>

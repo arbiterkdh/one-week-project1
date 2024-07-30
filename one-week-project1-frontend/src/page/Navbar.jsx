@@ -13,6 +13,7 @@ export function Navbar() {
       right={0}
       zIndex={1000}
       border={"1px solid"}
+      bgColor={"white"}
     >
       <Center>
         <Box

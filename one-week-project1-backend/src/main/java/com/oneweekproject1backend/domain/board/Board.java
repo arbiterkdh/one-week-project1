@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class Board {
     private Integer boardId;
     private Integer boardMemberId;
+    private String boardType;
     private String boardTitle;
     private String boardContent;
     private LocalDateTime boardInserted;

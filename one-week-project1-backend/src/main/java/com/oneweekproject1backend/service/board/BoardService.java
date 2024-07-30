@@ -33,6 +33,7 @@ public class BoardService {
             boardMapper.updateBoardViewCountByBoardId(boardId);
             board.setMemberNickname(getMemberNicknameByBoard(board));
             board.setBoardLikeCount(getBoardLikeCount(boardId));
+            board.setBoardCommentCount(getBoardCommentCount(boardId));
             return board;
         }
         return null;
@@ -49,5 +50,9 @@ public class BoardService {
             return boardLikes;
         }
         return 0;
+    }
+
+    private Integer getBoardCommentCount(Integer boardId) {
+        return null;
     }
 }
