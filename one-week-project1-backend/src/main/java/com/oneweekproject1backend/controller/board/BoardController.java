@@ -17,8 +17,8 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/list")
-    public ResponseEntity getBoardList() {
-        List<Board> boardList = boardService.getBoardList();
+    public ResponseEntity getBoardList(@RequestParam(value = "page", defaultValue = "1") Integer page) {
+        List<Board> boardList = boardService.getBoardList(page);
         if (boardList.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -47,6 +47,15 @@ public class BoardController {
     @DeleteMapping("/delete/{boardMemberId}/{boardId}")
     public ResponseEntity deleteBoard(@PathVariable Integer boardMemberId, @PathVariable Integer boardId) {
         boolean result = boardService.deleteBoard(boardMemberId, boardId);
+        if (result) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PutMapping("/modify")
+    public ResponseEntity updateBoard(@RequestBody Board board) {
+        boolean result = boardService.updateBoard(board);
         if (result) {
             return ResponseEntity.ok().build();
         }

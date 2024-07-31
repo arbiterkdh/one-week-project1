@@ -12,6 +12,7 @@ public class Board {
     private String boardTitle;
     private String boardContent;
     private LocalDateTime boardInserted;
+    private LocalDateTime boardUpdated;
     private Integer boardViewCount;
 
     // frontend 에 따로 담아서 보내기 위한 용도

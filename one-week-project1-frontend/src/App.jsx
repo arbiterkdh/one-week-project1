@@ -7,6 +7,7 @@ import { LoginComponent } from "./page/member/login/LoginComponent.jsx";
 import { LoginProvider } from "./LoginProvider.jsx";
 import { SignupComponent } from "./page/member/signup/SignupComponent.jsx";
 import axios from "axios";
+import { BoardModify } from "./page/board/modify/BoardModify.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -24,8 +25,12 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Board /> },
       { path: "/board", element: <Board /> },
-      { path: "/board/view/:id", element: <BoardView /> },
+      { path: "/board/view/:boardId", element: <BoardView /> },
       { path: "/board/write", element: <BoardWrite /> },
+      {
+        path: "/board/modify/:boardMemberId/:boardId",
+        element: <BoardModify />,
+      },
       { path: "/signup", element: <SignupComponent /> },
       { path: "/login", element: <LoginComponent /> },
     ],

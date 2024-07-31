@@ -33,9 +33,9 @@ export function BoardWrite() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const [type, setType] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [boardType, setBoardType] = useState("");
+  const [boardTitle, setBoardTitle] = useState("");
+  const [boardContent, setBoardContent] = useState("");
 
   useEffect(() => {
     if (!account.isLoggedIn()) {
@@ -52,9 +52,9 @@ export function BoardWrite() {
     axios
       .postForm("/api/board/write/upload", {
         boardMemberId: account.id,
-        boardType: type,
-        boardTitle: title,
-        boardContent: content,
+        boardType,
+        boardTitle,
+        boardContent,
       })
       .then((res) => {
         toast({
@@ -69,12 +69,14 @@ export function BoardWrite() {
       });
   }
 
+  let isAllConditionChecked = boardType && boardTitle && boardContent;
+
   return (
     <Center>
       <OuttestBox>
         <Select
-          onChange={(e) => setType(e.target.value)}
-          value={type}
+          onChange={(e) => setBoardType(e.target.value)}
+          value={boardType}
           placeholder={"글 종류"}
         >
           <option value={"talk"}>잡담/유머/힐링</option>
@@ -85,17 +87,25 @@ export function BoardWrite() {
         </Select>
         <Input
           type={"text"}
-          onChange={(e) => setTitle(e.target.value)}
-          value={title}
+          placeholder={"제목을 입력해주세요."}
+          onChange={(e) => setBoardTitle(e.target.value)}
+          value={boardTitle}
         />
         <Textarea
           minH={"800px"}
-          onChange={(e) => setContent(e.target.value)}
-          value={content}
+          placeholder={"내용을 입력해주세요."}
+          resize={"none"}
+          onChange={(e) => setBoardContent(e.target.value)}
+          value={boardContent}
         />
         <Button>글 임시저장 불러올곳</Button>
         <Button>글 임시저장 만들곳</Button>
-        <Button onClick={() => uploadModalOnOpen()}>글 업로드 만들곳</Button>
+        <Button
+          isDisabled={!isAllConditionChecked}
+          onClick={() => uploadModalOnOpen()}
+        >
+          글 업로드 만들곳
+        </Button>
       </OuttestBox>
       <Modal isOpen={uploadModalIsOpen} onClose={uploadModalOnClose}>
         <ModalOverlay />

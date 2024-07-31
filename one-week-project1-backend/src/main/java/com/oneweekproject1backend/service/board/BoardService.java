@@ -16,8 +16,10 @@ public class BoardService {
     private final BoardMapper boardMapper;
     private final MemberMapper memberMapper;
 
-    public List<Board> getBoardList() {
-        List<Board> boardList = boardMapper.selectAllBoard();
+    public List<Board> getBoardList(Integer page) {
+        Integer offset = (page - 1) * 10;
+
+        List<Board> boardList = boardMapper.selectAllBoard(offset);
         if (!boardList.isEmpty()) {
             for (Board board : boardList) {
                 board.setMemberNickname(getMemberNicknameByBoard(board));
@@ -68,5 +70,9 @@ public class BoardService {
     public boolean deleteBoard(Integer boardMemberId, Integer boardId) {
 
         return boardMapper.deleteBoardByBoardMemberIdAndBoardId(boardMemberId, boardId) > 0;
+    }
+
+    public boolean updateBoard(Board board) {
+        return boardMapper.updateBoard(board) > 0;
     }
 }

@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
 import { HeaderBox } from "../../../css/component/box/HeaderBox.jsx";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CounterBox } from "../../../css/component/box/CounterBox.jsx";
 import { EmailVerifyComponent } from "./email/EmailVerifyComponent.jsx";
 import axios from "axios";
@@ -37,8 +37,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../../../LoginProvider.jsx";
 
 export function SignupComponent() {
+  const account = useContext(LoginContext);
+
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -130,7 +133,7 @@ export function SignupComponent() {
         setIsNicknameChecked(true);
       })
       .catch((err) => {
-        if (err.value.status === 409) {
+        if (err.response.status === 409) {
           toast({
             status: "warning",
             description: "이미 사용중인 별명입니다.",
@@ -153,7 +156,15 @@ export function SignupComponent() {
           description: `회원이 되신걸 환영합니다, ${nickname}님.😄`,
           position: "bottom-right",
         });
-        navigate("/");
+        axios
+          .post("/api/member/login/token", {
+            memberEmail: address + "@" + domain,
+            memberPassword: password,
+          })
+          .then((res) => {
+            account.login(res.data.token);
+            navigate("/");
+          });
       })
       .catch(() => {
         toast({

@@ -16,11 +16,13 @@ public interface BoardMapper {
                 board_title,
                 board_content,
                 board_inserted,
+                board_updated,
                 board_view_count
             FROM board
             ORDER BY board_id DESC
+            LIMIT #{offset}, 10
             """)
-    List<Board> selectAllBoard();
+    List<Board> selectAllBoard(Integer offset);
 
     @Select("""
             SELECT
@@ -30,6 +32,7 @@ public interface BoardMapper {
                 board_title,
                 board_content,
                 board_inserted,
+                board_updated,
                 board_view_count
             FROM board
             WHERE board_id=#{boardId}
@@ -64,4 +67,15 @@ public interface BoardMapper {
             AND board_member_id=#{boardMemberId}
             """)
     int deleteBoardByBoardMemberIdAndBoardId(Integer boardMemberId, Integer boardId);
+
+    @Update("""
+            UPDATE board
+            SET board_type=#{boardType},
+                board_title=#{boardTitle},
+                board_content=#{boardContent},
+                board_updated=NOW()
+            WHERE board_id=#{boardId}
+            AND board_member_id=#{boardMemberId}
+            """)
+    int updateBoard(Board board);
 }

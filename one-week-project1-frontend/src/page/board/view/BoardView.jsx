@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Center,
@@ -19,7 +20,7 @@ import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { BoardCommentComponent } from "./comment/BoardCommentComponent.jsx";
+import { BoardComment } from "./comment/BoardComment.jsx";
 import { TitleBox } from "../../../css/component/box/TitleBox.jsx";
 import {
   faCommentDots,
@@ -32,7 +33,7 @@ import { LoginContext } from "../../../LoginProvider.jsx";
 export function BoardView() {
   const account = useContext(LoginContext);
 
-  const { id } = useParams();
+  const { boardId } = useParams();
 
   const {
     isOpen: boardDeleteModalIsOpen,
@@ -44,21 +45,33 @@ export function BoardView() {
   const navigate = useNavigate();
 
   const [board, setBoard] = useState(null);
+  const [boardType, setBoardType] = useState("");
 
   useEffect(() => {
     axios
-      .get(`/api/board/view/${id}`)
+      .get(`/api/board/view/${boardId}`)
       .then((res) => {
         setBoard(res.data);
+        if (res.data.boardType === "talk") {
+          setBoardType("잡담/유머/힐링");
+        } else if (res.data.boardType === "info") {
+          setBoardType("정보/지식공유");
+        } else if (res.data.boardType === "issue") {
+          setBoardType("정치/사회/이슈");
+        } else if (res.data.boardType === "culture") {
+          setBoardType("게임/문화/연예");
+        } else if (res.data.boardType === "other") {
+          setBoardType("기타");
+        }
       })
       .catch((err) => {
-        console.log(err);
+        console.log("게시물 조회 요청중 오류: " + err);
       });
   }, []);
 
   function handleClickDeleteBoard() {
     axios
-      .delete(`/api/board/delete/${account.id}/${id}`)
+      .delete(`/api/board/delete/${account.id}/${boardId}`)
       .then((res) => {
         toast({
           status: "success",
@@ -85,6 +98,7 @@ export function BoardView() {
       {board ? (
         <OuttestBox>
           <Box minH={"640px"}>
+            <Badge>{boardType}</Badge>
             <TitleBox p={2} m={1}>
               {board.boardTitle}
             </TitleBox>
@@ -134,13 +148,17 @@ export function BoardView() {
           </Box>
           {account.hasAccess(board.boardMemberId) && (
             <Flex justifyContent={"end"}>
-              <Button onClick={() => navigate(`/board/modify/${id}`)}>
+              <Button
+                onClick={() =>
+                  navigate(`/board/modify/${board.boardMemberId}/${boardId}`)
+                }
+              >
                 수정
               </Button>
               <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
             </Flex>
           )}
-          <BoardCommentComponent />
+          <BoardComment />
         </OuttestBox>
       ) : (
         <Spinner size="xl" />

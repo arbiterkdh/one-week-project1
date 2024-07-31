@@ -1,7 +1,7 @@
 import { Box, Center, Flex, useToast } from "@chakra-ui/react";
 import { NavBox } from "../css/component/box/NavBox.jsx";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { LoginContext } from "../LoginProvider.jsx";
 
 export function Navbar() {
@@ -9,6 +9,8 @@ export function Navbar() {
 
   const toast = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {}, [account]);
 
   return (
     <Box
@@ -32,9 +34,12 @@ export function Navbar() {
             <NavBox onClick={() => navigate("/board")}>종합게시판</NavBox>
             {account.isLoggedIn() && (
               <Box>
-                <NavBox onClick={() => navigate("/memberinfo")}>
-                  회원정보
-                </NavBox>
+                <Flex>
+                  <NavBox>{account.nickname} 님</NavBox>
+                  <NavBox onClick={() => navigate("/memberinfo")}>
+                    회원정보
+                  </NavBox>
+                </Flex>
                 <NavBox
                   onClick={() => {
                     account.logout();

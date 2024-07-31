@@ -4,7 +4,7 @@ import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { TitleBox } from "../../../../css/component/box/TitleBox.jsx";
 import { useState } from "react";
 
-export function BoardCommentComponent() {
+export function BoardComment() {
   const [comment, setComment] = useState("");
 
   return (

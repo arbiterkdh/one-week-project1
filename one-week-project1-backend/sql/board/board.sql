@@ -60,6 +60,7 @@ CREATE TABLE board
     board_title      VARCHAR(200)  NOT NULL,
     board_content    VARCHAR(5000) NOT NULL,
     board_inserted   DATETIME      NOT NULL DEFAULT NOW(),
+    board_updated    DATETIME      NOT NULL DEFAULT NOW(),
     board_view_count INT           NOT NULL DEFAULT 0
 );
 
@@ -80,6 +81,11 @@ DROP TABLE board_comment;
 INSERT INTO board
     (board_member_id, board_type, board_title, board_content)
 VALUES (1, '잡담', '사랑해요백예린엉엉', '예린백그저빛');
+
+INSERT INTO board
+    (board_member_id, board_type, board_title, board_content)
+SELECT board_member_id, board_type, board_title, board_content
+FROM board;
 
 SELECT *
 FROM board;
