@@ -1,12 +1,21 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./page/Home.jsx";
 import { Board } from "./page/board/Board.jsx";
-import { ChakraProvider } from "@chakra-ui/react";
 import { BoardView } from "./page/board/view/BoardView.jsx";
 import { BoardWrite } from "./page/board/write/BoardWrite.jsx";
 import { LoginComponent } from "./page/member/login/LoginComponent.jsx";
 import { LoginProvider } from "./LoginProvider.jsx";
 import { SignupComponent } from "./page/member/signup/SignupComponent.jsx";
+import axios from "axios";
+
+// axios interceptor 설정
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const router = createBrowserRouter([
   {
@@ -26,9 +35,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <LoginProvider>
-      <ChakraProvider>
-        <RouterProvider router={router} />
-      </ChakraProvider>
+      <RouterProvider router={router} />
     </LoginProvider>
   );
 }

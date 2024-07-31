@@ -15,11 +15,13 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { HeaderBox } from "../../css/component/box/HeaderBox.jsx";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../../LoginProvider.jsx";
 
 export function Board() {
+  const account = useContext(LoginContext);
   const [boardList, setBoardList] = useState(null);
 
   const navigate = useNavigate();
@@ -31,7 +33,10 @@ export function Board() {
         setBoardList(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        if (err.response.status === 404) {
+          setBoardList([]);
+        }
+        console.log("게시판 리스트 요청중 오류: " + err);
       });
   }, []);
 
@@ -60,34 +65,60 @@ export function Board() {
                 </Tr>
               </Thead>
               <Tbody>
-                {boardList.map((board, index) => {
-                  return (
-                    <Tr key={index}>
-                      <Td>{board.boardId}</Td>
-                      <Td
-                        onClick={() => navigate(`/board/view/${board.boardId}`)}
-                      >
-                        <Flex alignItems={"center"}>
-                          <Box>{board.boardTitle}</Box>
-                          <Badge>+{board.boardCommentCount}</Badge>
-                        </Flex>
-                      </Td>
-                      <Td>{board.memberNickname}</Td>
-                      <Td>{board.boardLikeCount}</Td>
-                      <Td>{board.boardViewCount}</Td>
-                      <Td>{board.boardInserted}</Td>
-                    </Tr>
-                  );
-                })}
+                {boardList.length > 0 ? (
+                  boardList.map((board, index) => {
+                    let boardType = "";
+                    if (board.boardType === "talk") {
+                      boardType = "잡담/유머/힐링";
+                    } else if (board.boardType === "info") {
+                      boardType = "정보/지식공유";
+                    } else if (board.boardType === "issue") {
+                      boardType = "정치/사회/이슈";
+                    } else if (board.boardType === "culture") {
+                      boardType = "게임/문화/연예";
+                    } else if (board.boardType === "other") {
+                      boardType = "기타";
+                    }
+                    return (
+                      <Tr key={index}>
+                        <Td>{board.boardId}</Td>
+                        <Td
+                          onClick={() =>
+                            navigate(`/board/view/${board.boardId}`)
+                          }
+                        >
+                          <Flex alignItems={"center"}>
+                            <Badge fontSize={"xx-small"}>[{boardType}]</Badge>
+                            <Box>{board.boardTitle}</Box>
+                            <Badge>+{board.boardCommentCount}</Badge>
+                          </Flex>
+                        </Td>
+                        <Td>{board.memberNickname}</Td>
+                        <Td>{board.boardLikeCount}</Td>
+                        <Td>{board.boardViewCount}</Td>
+                        <Td>{board.boardInserted}</Td>
+                      </Tr>
+                    );
+                  })
+                ) : (
+                  <Tr>
+                    <Td></Td>
+                    <Td>게시글이 없습니다.</Td>
+                    <Td></Td>
+                    <Td></Td>
+                    <Td></Td>
+                    <Td></Td>
+                  </Tr>
+                )}
               </Tbody>
             </Table>
           </Box>
           <Box h={"45px"}>
             <Flex justifyContent={"space-between"}>
               <Box></Box>
-              <Button onClick={() => navigate("/board/write")}>
-                글쓰기 만들곳
-              </Button>
+              {account.isLoggedIn() && (
+                <Button onClick={() => navigate("/board/write")}>글쓰기</Button>
+              )}
             </Flex>
           </Box>
           <Box border={"1px solid black"} h={"50px"}>

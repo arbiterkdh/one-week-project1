@@ -1,7 +1,23 @@
-import { Box, Center, Flex, Spinner, Textarea } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spinner,
+  Textarea,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { BoardCommentComponent } from "./comment/BoardCommentComponent.jsx";
 import { TitleBox } from "../../../css/component/box/TitleBox.jsx";
@@ -11,9 +27,21 @@ import {
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { LoginContext } from "../../../LoginProvider.jsx";
 
 export function BoardView() {
+  const account = useContext(LoginContext);
+
   const { id } = useParams();
+
+  const {
+    isOpen: boardDeleteModalIsOpen,
+    onOpen: boardDeleteModalOnOpen,
+    onClose: boardDeleteModalOnClose,
+  } = useDisclosure();
+
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const [board, setBoard] = useState(null);
 
@@ -27,6 +55,30 @@ export function BoardView() {
         console.log(err);
       });
   }, []);
+
+  function handleClickDeleteBoard() {
+    axios
+      .delete(`/api/board/delete/${account.id}/${id}`)
+      .then((res) => {
+        toast({
+          status: "success",
+          description: "안전하게 삭제되었습니다.",
+          position: "bottom-left",
+        });
+        boardDeleteModalOnClose();
+        navigate(`/board`);
+      })
+      .catch((err) => {
+        if (err.response.status === 400) {
+          toast({
+            status: "error",
+            description: "요청 처리중 오류가 발생했습니다.",
+            position: "bottom-left",
+          });
+        }
+        console.log("삭제 요청중 오류: " + err);
+      });
+  }
 
   return (
     <Center>
@@ -80,11 +132,33 @@ export function BoardView() {
               </Box>
             </Center>
           </Box>
+          {account.hasAccess(board.boardMemberId) && (
+            <Flex justifyContent={"end"}>
+              <Button onClick={() => navigate(`/board/modify/${id}`)}>
+                수정
+              </Button>
+              <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
+            </Flex>
+          )}
           <BoardCommentComponent />
         </OuttestBox>
       ) : (
         <Spinner size="xl" />
       )}
+      <Modal isOpen={boardDeleteModalIsOpen} onClose={boardDeleteModalOnClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            삭제 확인
+            <ModalCloseButton />
+          </ModalHeader>
+          <ModalBody>정말로 삭제하시겠습니까?</ModalBody>
+          <ModalFooter>
+            <Button onClick={handleClickDeleteBoard}>삭제</Button>
+            <Button onClick={boardDeleteModalOnClose}>취소</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Center>
   );
 }

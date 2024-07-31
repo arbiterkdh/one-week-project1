@@ -1,4 +1,5 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 export const LoginContext = createContext(null);
 
@@ -10,6 +11,49 @@ export function LoginProvider({ children }) {
   const [email, setEmail] = useState("");
   const [authority, setAuthority] = useState([]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      login(token);
+    }
+  }, []);
+
+  function isLoggedIn() {
+    return Date.now() < expired * 1000;
+  }
+
+  function hasAccess(param) {
+    return id == param;
+  }
+
+  function isAdmin() {
+    return authority.includes("ADMIN");
+  }
+
+  function login(token) {
+    localStorage.setItem("token", token);
+    const payload = jwtDecode(token);
+    setExpired(payload.exp);
+    setId(payload.sub);
+    setNickname(payload.nickname);
+    setPicture(payload.picture);
+    setEmail(payload.email);
+    setAuthority(payload.scope.split(" "));
+  }
+
+  function logout() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      localStorage.removeItem("token");
+    }
+    setId("");
+    setExpired(0);
+    setNickname("");
+    setPicture("");
+    setEmail("");
+    setAuthority([]);
+  }
+
   return (
     <LoginContext.Provider
       value={{
@@ -17,6 +61,11 @@ export function LoginProvider({ children }) {
         nickname,
         picture,
         email,
+        login,
+        logout,
+        hasAccess,
+        isAdmin,
+        isLoggedIn,
       }}
     >
       {children}

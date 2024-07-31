@@ -1,9 +1,7 @@
 package com.oneweekproject1backend.mapper.board;
 
 import com.oneweekproject1backend.domain.board.Board;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -14,6 +12,7 @@ public interface BoardMapper {
             SELECT
                 board_id,
                 board_member_id,
+                board_type,
                 board_title,
                 board_content,
                 board_inserted,
@@ -27,6 +26,7 @@ public interface BoardMapper {
             SELECT
                 board_id,
                 board_member_id,
+                board_type,
                 board_title,
                 board_content,
                 board_inserted,
@@ -49,4 +49,19 @@ public interface BoardMapper {
             WHERE board_id=#{boardId}
             """)
     int updateBoardViewCountByBoardId(Integer boardId);
+
+    @Insert("""
+            INSERT INTO board
+            (board_member_id, board_type, board_title, board_content)
+            VALUES(#{boardMemberId}, #{boardType}, #{boardTitle}, #{boardContent})
+            """)
+    @Options(useGeneratedKeys = true, keyProperty = "boardId")
+    int insertBoard(Board board);
+
+    @Delete("""
+            DELETE FROM board
+            WHERE board_id=#{boardId}
+            AND board_member_id=#{boardMemberId}
+            """)
+    int deleteBoardByBoardMemberIdAndBoardId(Integer boardMemberId, Integer boardId);
 }

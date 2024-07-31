@@ -75,7 +75,7 @@ export function SignupComponent() {
       .post("/api/member/signup/email/send", { email })
       .then((res) => {})
       .catch((err) => {
-        console.log(err);
+        console.log("이메일 전송 요청중 오류: " + err);
         setIsVerifyingEmail(false);
       })
       .finally(() => {
@@ -120,7 +120,7 @@ export function SignupComponent() {
 
   function handleCheckNickname() {
     axios
-      .get(`/api/member/${nickname}`)
+      .get(`/api/member/signup/nickname/check/${nickname}`)
       .then(() => {
         toast({
           status: "success",
@@ -196,6 +196,7 @@ export function SignupComponent() {
                 <InputGroup>
                   <Input
                     type={"text"}
+                    placeholder={"이메일"}
                     onChange={(e) => setAddress(e.target.value)}
                     value={address}
                   />
@@ -217,6 +218,7 @@ export function SignupComponent() {
                 </Select>
                 <Input
                   type={"text"}
+                  placeholder={"직접입력"}
                   onChange={(e) => setDomain(e.target.value)}
                   value={domain}
                   isDisabled={selectedDomain !== ""}
@@ -243,7 +245,7 @@ export function SignupComponent() {
           </FormControl>
           <FormControl>
             <FormLabel>
-              패스워드 (영어 대/소문자 구분, 특수문자 !@#$%^*_-+= 입력 가능)
+              비밀번호 (영어 대/소문자 구분, 특수문자 !@#$%^*_-+= 입력 가능)
             </FormLabel>
             <InputGroup>
               <Input

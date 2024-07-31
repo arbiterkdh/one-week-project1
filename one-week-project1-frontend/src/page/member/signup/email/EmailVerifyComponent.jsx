@@ -48,7 +48,7 @@ export function EmailVerifyComponent({
       .delete(`/api/member/signup/verify/delete/${email}`)
       .then((res) => {})
       .catch((err) => {
-        console.log(err);
+        console.log("인증번호 삭제 요청중 오류: " + err);
       });
     setIsVerifyingEmail(false);
     setRemainTime(5 * 60 * 1000);

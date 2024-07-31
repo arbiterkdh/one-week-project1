@@ -3,6 +3,7 @@ package com.oneweekproject1backend.controller.board;
 import com.oneweekproject1backend.domain.board.Board;
 import com.oneweekproject1backend.service.board.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,21 @@ public class BoardController {
     }
 
     @PostMapping("/write/upload")
-    public ResponseEntity writeBoard(@RequestBody Board board) {
-        return null;
+    public ResponseEntity writeBoard(Board board) {
+        Board addedBoard = null;
+        addedBoard = boardService.addBoard(board);
+        if (addedBoard != null) {
+            return ResponseEntity.ok(addedBoard);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @DeleteMapping("/delete/{boardMemberId}/{boardId}")
+    public ResponseEntity deleteBoard(@PathVariable Integer boardMemberId, @PathVariable Integer boardId) {
+        boolean result = boardService.deleteBoard(boardMemberId, boardId);
+        if (result) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

@@ -11,10 +11,29 @@ CREATE TABLE member
     member_updated  DATETIME      NOT NULL DEFAULT NOW()
 );
 
+SELECT *
+FROM member;
+
 DROP TABLE member;
 
 DELETE
 FROM member;
+
+CREATE TABLE authority
+(
+    authority_id               INT PRIMARY KEY AUTO_INCREMENT,
+    authority_member_id        INT REFERENCES member (member_id),
+    authority_member_authority VARCHAR(50) NOT NULL
+);
+
+SELECT *
+FROM authority;
+
+DROP TABLE authority;
+
+INSERT INTO authority
+    (authority_member_id, authority_member_authority)
+VALUES (1, 'USER');
 
 CREATE TABLE email_verify_number
 (
@@ -22,6 +41,7 @@ CREATE TABLE email_verify_number
     verify_number INT          NOT NULL UNIQUE,
     PRIMARY KEY (email, verify_number)
 );
+
 
 SELECT *
 FROM email_verify_number;

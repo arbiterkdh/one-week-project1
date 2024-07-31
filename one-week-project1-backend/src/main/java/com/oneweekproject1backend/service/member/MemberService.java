@@ -9,9 +9,16 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -85,5 +92,36 @@ public class MemberService {
 
         member.setMemberPassword(passwordEncoder.encode(member.getMemberPassword()));
         return memberMapper.insertMember(member) > 0;
+    }
+
+    public Map<String, Object> getToken(Member member) {
+        Map<String, Object> result = null;
+
+        Member db = memberMapper.selectMemberByMemberEmail(member.getMemberEmail());
+        if (db != null) {
+            if (passwordEncoder.matches(member.getMemberPassword(), db.getMemberPassword())) {
+                result = new HashMap<>();
+                String token = "";
+                Instant now = Instant.now();
+
+                List<String> authority = memberMapper.selectAuthorityByMemberId(db.getMemberId());
+                String authorityString = String.join(" ", authority);
+
+                JwtClaimsSet claims = JwtClaimsSet.builder()
+                        .issuer("self")
+                        .issuedAt(now)
+                        .expiresAt(now.plusSeconds(60 * 60 * 24))
+                        .subject(db.getMemberId().toString())
+                        .claim("nickname", db.getMemberNickname())
+                        .claim("email", db.getMemberEmail())
+                        .claim("scope", authorityString)
+                        .build();
+
+                token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+                result.put("token", token);
+            }
+        }
+        return result;
     }
 }

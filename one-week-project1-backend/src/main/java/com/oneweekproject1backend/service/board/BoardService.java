@@ -31,6 +31,8 @@ public class BoardService {
         Board board = boardMapper.selectBoardByBoardId(boardId);
         if (board != null) {
             boardMapper.updateBoardViewCountByBoardId(boardId);
+            board = boardMapper.selectBoardByBoardId(boardId);
+
             board.setMemberNickname(getMemberNicknameByBoard(board));
             board.setBoardLikeCount(getBoardLikeCount(boardId));
             board.setBoardCommentCount(getBoardCommentCount(boardId));
@@ -54,5 +56,17 @@ public class BoardService {
 
     private Integer getBoardCommentCount(Integer boardId) {
         return null;
+    }
+
+    public Board addBoard(Board board) {
+        if (boardMapper.insertBoard(board) > 0) {
+            return board;
+        }
+        return null;
+    }
+
+    public boolean deleteBoard(Integer boardMemberId, Integer boardId) {
+
+        return boardMapper.deleteBoardByBoardMemberIdAndBoardId(boardMemberId, boardId) > 0;
     }
 }

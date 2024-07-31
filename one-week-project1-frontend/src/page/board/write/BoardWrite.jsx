@@ -13,24 +13,60 @@ import {
   Select,
   Textarea,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { LoginContext } from "../../../LoginProvider.jsx";
+import { useNavigate } from "react-router-dom";
 
 export function BoardWrite() {
+  const account = useContext(LoginContext);
+
   const {
     isOpen: uploadModalIsOpen,
     onOpen: uploadModalOnOpen,
     onClose: uploadModalOnClose,
   } = useDisclosure();
 
+  const toast = useToast();
+  const navigate = useNavigate();
+
   const [type, setType] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  useEffect(() => {
+    if (!account.isLoggedIn()) {
+      navigate("/");
+      toast({
+        status: "warning",
+        description: "로그인이 필요한 서비스입니다.",
+        position: "bottom-left",
+      });
+    }
+  }, []);
+
   function handleUploadBoardWrite() {
-    axios.postForm("/api/board/write/upload", { type, title, content });
+    axios
+      .postForm("/api/board/write/upload", {
+        boardMemberId: account.id,
+        boardType: type,
+        boardTitle: title,
+        boardContent: content,
+      })
+      .then((res) => {
+        toast({
+          status: "success",
+          description: "글이 등록되었습니다.",
+          position: "bottom-left",
+        });
+        navigate(`/board/view/${res.data.boardId}`);
+      })
+      .catch((err) => {
+        console.log("글 업로드 요청중 오류: " + err);
+      });
   }
 
   return (
