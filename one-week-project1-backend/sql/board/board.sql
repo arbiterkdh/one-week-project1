@@ -92,10 +92,8 @@ FROM board;
 
 EXPLAIN
 SELECT b.board_id,
-       b.board_member_id,
        b.board_type,
        b.board_title,
-       b.board_content,
        b.board_inserted,
        b.board_updated,
        b.board_view_count,
@@ -110,8 +108,21 @@ WHERE b.board_title LIKE '%다%'
 GROUP BY b.board_id
 ORDER BY board_like_count DESC, b.board_id DESC;
 
+CREATE INDEX idx_board_type ON board (board_type);
+CREATE INDEX idx_board_title ON board (board_title);
+CREATE INDEX idx_board_content ON board (board_content);
+CREATE INDEX idx_board_member_id ON board (board_member_id);
+CREATE INDEX board_like_board_id ON board_like (board_like_board_id);
+CREATE INDEX idx_board_comment_board_id ON board_comment (board_comment_board_id);
+
+SHOW INDEX FROM board_comment;
+SHOW INDEX FROM board_like;
 SHOW INDEX FROM board;
 SHOW INDEX FROM member;
+
+SHOW FULL PROCESSLIST;
+
+KILL 70050;
 
 CREATE TABLE board_comment
 (

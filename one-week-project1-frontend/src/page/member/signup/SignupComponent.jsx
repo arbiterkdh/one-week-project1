@@ -342,7 +342,6 @@ export function SignupComponent() {
               <Text h={"18px"}></Text>
             )}
           </FormControl>
-          >
           <Box>
             <Button onClick={onOpen} isDisabled={!allChecked}>
               가입

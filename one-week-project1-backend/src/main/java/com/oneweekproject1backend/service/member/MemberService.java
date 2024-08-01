@@ -25,7 +25,6 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class MemberService {
 
-
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
     private final MemberMapper memberMapper;

@@ -146,7 +146,7 @@ public interface BoardMapper {
             <script>
             SELECT COUNT(b.board_id)
             FROM board b JOIN member m ON b.board_member_id = m.member_id
-                <trim prefix="WHERE" prefixOverrides="AND| OR">
+                <trim prefix="WHERE" prefixOverrides="AND">
                 <if test="boardType != 'general'">
                     b.board_type = #{boardType}
                 </if>
