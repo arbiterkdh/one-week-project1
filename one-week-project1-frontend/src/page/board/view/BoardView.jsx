@@ -25,8 +25,9 @@ import { TitleBox } from "../../../css/component/box/TitleBox.jsx";
 import {
   faCommentDots,
   faEye,
-  faThumbsUp,
+  faThumbsUp as solidThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
+import { faThumbsUp as regularThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LoginContext } from "../../../LoginProvider.jsx";
 
@@ -46,6 +47,9 @@ export function BoardView() {
 
   const [board, setBoard] = useState(null);
   const [boardType, setBoardType] = useState("");
+
+  const [liked, setLiked] = useState(false);
+  const [mouseOnLikeButton, setMouseOnLikeButton] = useState(false);
 
   useEffect(() => {
     axios
@@ -93,6 +97,20 @@ export function BoardView() {
       });
   }
 
+  function handleClickLikeButton() {
+    axios
+      .post("/api/board/like", {
+        boardId: board.boardId,
+        boardMemberId: account.id,
+      })
+      .then((res) => {
+        setBoard(res.data);
+      })
+      .catch((err) => {
+        console.log("좋아요 버튼 요청중 오류: " + err);
+      });
+  }
+
   return (
     <Center>
       {board ? (
@@ -121,7 +139,7 @@ export function BoardView() {
                   <Box>댓글수</Box>
                 </Flex>
                 <Flex alignItems={"center"}>
-                  <FontAwesomeIcon opacity={"0.6"} icon={faThumbsUp} />
+                  <FontAwesomeIcon opacity={"0.6"} icon={solidThumbsUp} />
                   <Box>{board.boardLikeCount}</Box>
                 </Flex>
               </Flex>
@@ -140,9 +158,27 @@ export function BoardView() {
                 w={"80px"}
                 h={"80px"}
                 rounded={"full"}
+                cursor={"pointer"}
                 border={"1px solid"}
+                onClick={() => {
+                  setLiked(!liked);
+                  handleClickLikeButton();
+                }}
+                onMouseEnter={() => setMouseOnLikeButton(true)}
+                onMouseLeave={() => setMouseOnLikeButton(false)}
               >
-                <FontAwesomeIcon size={"3x"} icon={faThumbsUp} />
+                {liked &&
+                  (mouseOnLikeButton ? (
+                    <FontAwesomeIcon size={"3x"} icon={regularThumbsUp} />
+                  ) : (
+                    <FontAwesomeIcon size={"3x"} icon={solidThumbsUp} />
+                  ))}
+                {!liked &&
+                  (mouseOnLikeButton ? (
+                    <FontAwesomeIcon size={"3x"} icon={solidThumbsUp} />
+                  ) : (
+                    <FontAwesomeIcon size={"3x"} icon={regularThumbsUp} />
+                  ))}
               </Box>
             </Center>
           </Box>

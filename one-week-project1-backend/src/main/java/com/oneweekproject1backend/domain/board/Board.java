@@ -17,6 +17,7 @@ public class Board {
 
     // frontend 에 따로 담아서 보내기 위한 용도
     private String memberNickname;
+    private Boolean isLikedByMemberId;
     private Integer boardLikeCount;
     private Integer boardCommentCount;
 }

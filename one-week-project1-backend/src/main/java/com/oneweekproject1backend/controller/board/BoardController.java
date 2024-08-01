@@ -5,9 +5,10 @@ import com.oneweekproject1backend.service.board.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/board")
@@ -17,17 +18,20 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/list")
-    public ResponseEntity getBoardList(@RequestParam(value = "page", defaultValue = "1") Integer page) {
-        List<Board> boardList = boardService.getBoardList(page);
-        if (boardList.isEmpty()) {
+    public ResponseEntity getBoardList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(required = false, name = "type") String searchType,
+            @RequestParam(required = false) String keyword) {
+        Map<String, Object> map = boardService.getBoardList(page, searchType, keyword);
+        if (map.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(boardList);
+        return ResponseEntity.ok(map);
     }
 
     @GetMapping("/view/{boardId}")
-    public ResponseEntity getBoardView(@PathVariable Integer boardId) {
-        Board board = boardService.getBoard(boardId);
+    public ResponseEntity getBoardView(@PathVariable Integer boardId, Authentication authentication) {
+        Board board = boardService.getBoard(boardId, authentication);
         if (board == null) {
             return ResponseEntity.notFound().build();
         }
@@ -60,5 +64,10 @@ public class BoardController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PostMapping("/like")
+    public Board handleBoardLike(@RequestBody Board board) {
+        return boardService.handleBoardLike(board);
     }
 }
