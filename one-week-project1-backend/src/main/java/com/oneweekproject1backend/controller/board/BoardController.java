@@ -20,9 +20,13 @@ public class BoardController {
     @GetMapping("/list")
     public ResponseEntity getBoardList(
             @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "general") String boardType,
             @RequestParam(required = false, name = "type") String searchType,
-            @RequestParam(required = false) String keyword) {
-        Map<String, Object> map = boardService.getBoardList(page, searchType, keyword);
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "none") String sortState,
+            @RequestParam(required = false, defaultValue = "none") String sortType
+    ) {
+        Map<String, Object> map = boardService.getBoardList(page, boardType, searchType, keyword, sortState, sortType);
         if (map.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

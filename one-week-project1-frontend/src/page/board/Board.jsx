@@ -1,10 +1,11 @@
-import { OuttestBox } from "../../css/component/box/OuttestBox.jsx";
+import { OuttestBox } from "../../css/component/Box/OuttestBox.jsx";
 import {
   Badge,
   Box,
   Button,
   Center,
   Flex,
+  Highlight,
   Input,
   Select,
   Spinner,
@@ -25,9 +26,12 @@ import {
   faCaretRight,
   faForwardFast,
   faMagnifyingGlass,
+  faSort,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { HeaderBox } from "../../css/component/box/HeaderBox.jsx";
+import { HeaderBox } from "../../css/component/Box/HeaderBox.jsx";
+import { SmallButton } from "../../css/component/Button/SmallButton.jsx";
+import { ClickableTh } from "../../css/component/Table/Thead/Th/ClickableTh.jsx";
 
 export function Board() {
   const account = useContext(LoginContext);
@@ -38,21 +42,55 @@ export function Board() {
 
   const [boardList, setBoardList] = useState([]);
   const [pageInfo, setPageInfo] = useState([]);
-  const [currentPage, setCurrentPage] = useState(undefined);
+  const [boardType, setBoardType] = useState(
+    searchParams.get("boardType") ? searchParams.get("boardType") : "general",
+  );
+  const [currentPage, setCurrentPage] = useState(
+    searchParams.get("page") ? searchParams.get("page") : 1,
+  );
+  const [selected, setSelected] = useState(
+    searchParams.get("type") ? searchParams.get("type") : "all",
+  );
+  const [keyword, setKeyword] = useState(
+    searchParams.get("keyword") ? searchParams.get("keyword") : "",
+  );
 
-  const [selected, setSelected] = useState("all");
-  const [keyword, setKeyword] = useState("");
+  const [isSearched, setIsSearched] = useState(!!keyword);
+  const [isSearchedKeyword, setIsSearchedKeyword] = useState(
+    keyword ? keyword : "",
+  );
+
+  const [sortType, setSortType] = useState(
+    searchParams.get("sortType") ? searchParams.get("sortType") : "none",
+  );
+  const [sortState, setSortState] = useState(
+    searchParams.get("sortState") ? searchParams.get("sortState") : "none",
+  );
+  const [sortCount, setSortCount] = useState(0);
+
+  const [isGetting, setIsGetting] = useState(false);
 
   useEffect(() => {
+    setIsGetting(true);
     axios
       .get(`/api/board/list?${searchParams}`)
       .then((res) => {
         setBoardList(res.data.boardList);
         setPageInfo(res.data.pageInfo);
         setCurrentPage(searchParams.get("page"));
+        if (!searchParams.get("sortType")) {
+          setSortType("none");
+        }
+        if (!searchParams.get("boardType")) {
+          setBoardType("general");
+        }
         if (!searchParams.get("keyword")) {
           setSelected("all");
           setKeyword("");
+          setIsSearchedKeyword("");
+        } else {
+          setKeyword(searchParams.get("keyword"));
+          setIsSearchedKeyword(searchParams.get("keyword"));
         }
         if (!searchParams.get("page")) {
           setCurrentPage(1);
@@ -63,15 +101,55 @@ export function Board() {
           setBoardList([]);
         }
         console.log("게시판 리스트 요청중 오류: " + err);
-      });
+      })
+      .finally(() => setIsGetting(false));
   }, [searchParams]);
 
-  function handleClickSearch(searchType, searchKeyword) {
-    navigate(`/?type=${searchType}&keyword=${searchKeyword}`);
+  function handleClickSearch(boardType, searchType, searchKeyword) {
+    if (searchKeyword.trim() === "") {
+      return;
+    }
+    setIsSearched(true);
+    setIsSearchedKeyword(searchKeyword);
+    navigate(
+      `/?type=${searchType}&keyword=${searchKeyword}&boardType=${boardType}`,
+    );
   }
 
   function handleClickPageNumber(pageNumber) {
     searchParams.set("page", pageNumber);
+    navigate(`/?${searchParams}`);
+  }
+
+  function handleClickBoardType(boardType) {
+    searchParams.set("page", 1);
+    searchParams.set("boardType", boardType);
+    setBoardType(boardType);
+    navigate(`/?${searchParams}`);
+  }
+
+  function handleClickBoardSort(sortCount, type) {
+    let prevType = sortType;
+    let count;
+    if (prevType === type) {
+      count = (sortCount + 1) % 3;
+    } else {
+      count = 1;
+    }
+    if (count === 0) {
+      searchParams.set("sortState", "none");
+      setSortState("none");
+    } else if (count === 1) {
+      searchParams.set("sortState", "up");
+      setSortState("up");
+    } else if (count === 2) {
+      searchParams.set("sortState", "down");
+      setSortState("down");
+    }
+    searchParams.set("page", 1);
+    searchParams.set("sortType", type);
+    setSortCount(count);
+    setSortType(type);
     navigate(`/?${searchParams}`);
   }
 
@@ -88,29 +166,53 @@ export function Board() {
             <Flex w={"100%"} justifyContent={"space-between"} gap={1}>
               <HeaderBox w={"35%"}>종합게시판</HeaderBox>
               <Flex w={"65%"} gap={1} alignItems={"center"}>
-                <Button>잡담/유머/힐링</Button>
-                <Button>정보/지식공유</Button>
-                <Button>정치/경제/이슈</Button>
-                <Button>게임/문화/연예</Button>
-                <Button>기타</Button>
+                <Button onClick={() => handleClickBoardType("talk")}>
+                  잡담/유머/힐링
+                </Button>
+                <Button onClick={() => handleClickBoardType("info")}>
+                  정보/지식공유
+                </Button>
+                <Button onClick={() => handleClickBoardType("issue")}>
+                  정치/경제/이슈
+                </Button>
+                <Button onClick={() => handleClickBoardType("culture")}>
+                  게임/문화/연예
+                </Button>
+                <Button onClick={() => handleClickBoardType("other")}>
+                  기타
+                </Button>
               </Flex>
             </Flex>
           </Flex>
-          <Box h={"620px"}>
-            <Table w={"100%"}>
+          <Box minH={"620px"}>
+            <Table w={"100%"} my={1}>
               <Thead>
                 <Tr>
-                  <Th w={"3%"}>#</Th>
-                  <Th w={"7%"}>주제</Th>
-                  <Th w={"30%"}>제목</Th>
+                  <Th w={"9%"}>#</Th>
+                  <Th w={"14%"}>주제</Th>
+                  <Th w={"25%"}>제목</Th>
                   <Th w={"15%"}>글쓴이</Th>
-                  <Th w={"9%"}>좋아요</Th>
-                  <Th w={"10%"}>조회수</Th>
-                  <Th w={"10%"}>작성일시</Th>
+                  <ClickableTh
+                    w={"9%"}
+                    onClick={() => handleClickBoardSort(sortCount, "like")}
+                  >
+                    좋아요
+                    {sortState === "none" && sortType !== "date" && <FontAwesomeIcon icon={faSort} />}
+                  </ClickableTh>
+                  <ClickableTh
+                    w={"10%"}
+                    onClick={() => handleClickBoardSort(sortCount, "view")}
+                  >
+                    조회수
+                    {sortState === "none" && <FontAwesomeIcon icon={faSort} />}
+                  </ClickableTh>
+                  <Th w={"11%"}>작성일시</Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {boardList.length > 0 ? (
+                {isGetting ? (
+                  <Spinner size={"lg"} />
+                ) : boardList.length > 0 ? (
                   boardList.map((board, index) => {
                     let boardType = "";
                     if (board.boardType === "talk") {
@@ -158,7 +260,15 @@ export function Board() {
                       <Tr key={index}>
                         <Td>{board.boardId}</Td>
                         <Td>
-                          <Badge fontSize={"xx-small"}>[{boardType}]</Badge>
+                          <Badge
+                            cursor={"pointer"}
+                            onClick={() =>
+                              handleClickBoardType(board.boardType)
+                            }
+                            fontSize={"xx-small"}
+                          >
+                            [{boardType}]
+                          </Badge>
                         </Td>
                         <Td>
                           <Flex alignItems={"center"}>
@@ -169,7 +279,20 @@ export function Board() {
                                 navigate(`/board/view/${board.boardId}`);
                               }}
                             >
-                              {board.boardTitle}
+                              {isSearched ? (
+                                <Highlight
+                                  query={isSearchedKeyword}
+                                  styles={{
+                                    px: "1",
+                                    py: "1",
+                                    bg: "orange.100",
+                                  }}
+                                >
+                                  {board.boardTitle}
+                                </Highlight>
+                              ) : (
+                                <Box>{board.boardTitle}</Box>
+                              )}
                             </Box>
                             <Badge>+{board.boardCommentCount}</Badge>
                           </Flex>
@@ -180,8 +303,8 @@ export function Board() {
                         <Td fontSize={"small"}>{board.boardLikeCount}</Td>
                         <Td fontSize={"small"}>{board.boardViewCount}</Td>
                         <Td fontSize={"small"}>
-                          {boardInserted}
-                          {isModified && "(수정됨)"}
+                          <Box>{boardInserted}</Box>
+                          <Box>{isModified && "(수정됨)"}</Box>
                         </Td>
                       </Tr>
                     );
@@ -220,41 +343,42 @@ export function Board() {
                 size={"sm"}
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleClickSearch(boardType, selected, keyword);
+                  }
+                }}
               />
-              <Button
+              <SmallButton
                 w={"10%"}
-                size={"sm"}
                 isDisabled={!keyword}
-                onClick={() => handleClickSearch(selected, keyword)}
+                onClick={() => handleClickSearch(boardType, selected, keyword)}
               >
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
-              </Button>
+              </SmallButton>
             </Flex>
             <Flex gap={1}>
               {currentPage > 3 && (
-                <Button
-                  size={"sm"}
+                <SmallButton
                   onClick={() => {
                     handleClickPageNumber(1);
                   }}
                 >
                   <FontAwesomeIcon size={"xs"} icon={faBackwardFast} />
-                </Button>
+                </SmallButton>
               )}
               {currentPage > 1 && (
-                <Button
-                  size={"sm"}
+                <SmallButton
                   onClick={() => {
                     handleClickPageNumber(pageInfo.prevPageNumber);
                   }}
                 >
                   <FontAwesomeIcon icon={faCaretLeft} />
-                </Button>
+                </SmallButton>
               )}
               {pageNumbers.map((pageNumber, index) => {
                 return (
-                  <Button
-                    size={"sm"}
+                  <SmallButton
                     key={index}
                     color={pageNumber == currentPage ? "red.500" : ""}
                     fontWeight={pageNumber == currentPage ? "600" : ""}
@@ -263,40 +387,37 @@ export function Board() {
                     }}
                   >
                     {pageNumber}
-                  </Button>
+                  </SmallButton>
                 );
               })}
               {currentPage < pageInfo.endPageNumber && (
-                <Button
-                  size={"sm"}
+                <SmallButton
                   onClick={() => {
                     handleClickPageNumber(pageInfo.nextPageNumber);
                   }}
                 >
                   <FontAwesomeIcon icon={faCaretRight} />
-                </Button>
+                </SmallButton>
               )}
               {currentPage < pageInfo.endPageNumber - 2 && (
-                <Button
-                  size={"sm"}
+                <SmallButton
                   onClick={() => {
                     handleClickPageNumber(pageInfo.endPageNumber);
                   }}
                 >
                   <FontAwesomeIcon size={"xs"} icon={faForwardFast} />
-                </Button>
+                </SmallButton>
               )}
             </Flex>
             {account.isLoggedIn() ? (
               <Flex w={"300px"} justifyContent={"end"}>
-                <Button
+                <SmallButton
                   h={"30px"}
                   w={"60px"}
-                  size={"sm"}
                   onClick={() => navigate("/board/write")}
                 >
                   글쓰기
-                </Button>
+                </SmallButton>
               </Flex>
             ) : (
               <Box w={"300px"} />

@@ -85,66 +85,109 @@ public interface BoardMapper {
             FROM board b JOIN member m ON b.board_member_id = m.member_id
                          LEFT JOIN board_like bl ON b.board_id = bl.board_like_board_id
                          LEFT JOIN board_comment bc ON b.board_id = bc.board_comment_board_id
-                <trim prefix="WHERE" prefixOverrides="OR">
-                    <if test="searchType != null">
-                        <bind name="pattern" value="'%' + keyword + '%'" />
-                        <if test="searchType == 'all'">
-                            OR b.board_title LIKE #{pattern}
-                            OR b.board_content LIKE #{pattern}
-                            OR m.member_nickname LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'title'">
-                            OR b.board_title LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'content'">
-                            OR b.board_content LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'titleOrContent'">
-                            OR b.board_title LIKE #{pattern}
-                            OR b.board_content LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'nickname'">
-                            OR m.member_nickname LIKE #{pattern}
-                        </if>
-                    </if>
-                </trim>
+            <trim prefix="WHERE" prefixOverrides="AND| OR">
+                <if test="boardType != 'general'">
+                    b.board_type = #{boardType}
+                </if>
+                <if test="keyword != null">
+                    <bind name="pattern" value="'%' + keyword + '%'" />
+                    <choose>
+                        <when test="searchType == 'title'">
+                            AND b.board_title LIKE #{pattern}
+                        </when>
+                        <when test="searchType == 'content'">
+                            AND b.board_content LIKE #{pattern}
+                        </when>
+                        <when test="searchType == 'titleOrContent'">
+                            AND (b.board_title LIKE #{pattern}
+                                 OR b.board_content LIKE #{pattern})
+                        </when>
+                        <when test="searchType == 'nickname'">
+                            AND m.member_nickname LIKE #{pattern}
+                        </when>
+                        <otherwise>
+                            AND (b.board_title LIKE #{pattern}
+                                 OR b.board_content LIKE #{pattern}
+                                 OR m.member_nickname LIKE #{pattern})
+                        </otherwise>
+                    </choose>
+                </if>
+            </trim>
             GROUP BY b.board_id
-            ORDER BY board_id DESC
+            ORDER BY
+            <choose>
+                <when test="sortState == 'none'">
+                    b.board_id DESC
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="sortType == 'like'">
+                            <if test="sortState == 'up'">
+                                board_like_count DESC
+                            </if>
+                            <if test="sortState == 'down'">
+                                board_like_count ASC
+                            </if>
+                        </when>
+                        <when test="sortType == 'view'">
+                            <if test="sortState == 'up'">
+                                b.board_view_count DESC
+                            </if>
+                            <if test="sortState == 'down'">
+                                b.board_view_count ASC
+                            </if>
+                        </when>
+                        <when test="sortType == 'date'">
+                            <if test="sortState == 'up'">
+                                b.board_inserted DESC
+                            </if>
+                            <if test="sortState == 'down'">
+                                b.board_inserted ASC
+                            </if>
+                        </when>
+                    </choose>
+                </otherwise>
+            </choose>
             LIMIT #{offset}, 10
             </script>
             """)
-    List<Board> selectAllBoardBySearchTypeAndKeyword(String searchType, String keyword, Integer offset);
+    List<Board> selectAllBoardBySearchTypeAndKeyword(String boardType, String searchType, String keyword, String sortState, String sortType, Integer offset);
 
     @Select("""
             <script>
             SELECT COUNT(b.board_id)
             FROM board b JOIN member m ON b.board_member_id = m.member_id
-                <trim prefix="WHERE" prefixOverrides="OR">
-                    <if test="searchType != null">
-                        <bind name="pattern" value="'%' + keyword + '%'" />
-                        <if test="searchType == 'all'">
-                            OR b.board_title LIKE #{pattern}
-                            OR b.board_content LIKE #{pattern}
-                            OR m.member_nickname LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'title'">
-                            OR b.board_title LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'content'">
-                            OR b.board_content LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'titleOrContent'">
-                            OR b.board_title LIKE #{pattern}
-                            OR b.board_content LIKE #{pattern}
-                        </if>
-                        <if test="searchType == 'nickname'">
-                            OR m.member_nickname LIKE #{pattern}
-                        </if>
-                    </if>
-                </trim>
+                <trim prefix="WHERE" prefixOverrides="AND| OR">
+                <if test="boardType != 'general'">
+                    b.board_type = #{boardType}
+                </if>
+                <if test="searchType != null">
+                    <bind name="pattern" value="'%' + keyword + '%'" />
+                    <choose>
+                    <when test="searchType == 'title'">
+                        AND b.board_title LIKE #{pattern}
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND b.board_content LIKE #{pattern}
+                    </when>
+                    <when test="searchType == 'titleOrContent'">
+                        AND (b.board_title LIKE #{pattern}
+                             OR b.board_content LIKE #{pattern})
+                    </when>
+                    <when test="searchType == 'nickname'">
+                        AND m.member_nickname LIKE #{pattern}
+                    </when>
+                    <otherwise>
+                        AND (b.board_title LIKE #{pattern}
+                             OR b.board_content LIKE #{pattern}
+                             OR m.member_nickname LIKE #{pattern})
+                    </otherwise>
+                    </choose>
+                </if>
+            </trim>
             </script>
             """)
-    Integer countAllBoardBySearchTypeAndKeyword(String searchType, String keyword);
+    Integer countAllBoardByBoardTypeAndSearchTypeAndKeyword(String boardType, String searchType, String keyword);
 
     @Select("""
             SELECT COUNT(*) FROM board_like

@@ -1,11 +1,10 @@
 import { LoginContext } from "../../../LoginProvider.jsx";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import axios from "axios";
 import {
   Box,
   Button,
   Center,
-  Input,
   InputGroup,
   InputRightElement,
   useToast,
@@ -20,14 +19,17 @@ import {
   faEyeSlash as fullEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
-import { HeaderBox } from "../../../css/component/box/HeaderBox.jsx";
+import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
+import { HeaderBox } from "../../../css/component/Box/HeaderBox.jsx";
+import { CustomInput } from "../../../css/component/Input/CustomInput.jsx";
 
 export function LoginComponent() {
   const account = useContext(LoginContext);
 
   const toast = useToast();
   const navigate = useNavigate();
+
+  const InputRefs = useRef([]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,24 +67,40 @@ export function LoginComponent() {
       });
   }
 
+  function handleKeyDown(event, index) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (index === 0) {
+        InputRefs.current[1].focus();
+      } else {
+        handleLogin();
+      }
+    }
+  }
+
   return (
     <Center>
       <OuttestBox>
         <HeaderBox>로그인</HeaderBox>
-        <Input
+        <CustomInput
           placeholder={"이메일"}
+          InputRefs={InputRefs}
+          index={0}
           onChange={(e) => {
             setEmail(e.target.value);
           }}
         />
         <InputGroup display={"inherit"}>
-          <Input
+          <CustomInput
             type={canShow ? "text" : "password"}
             value={password}
             placeholder={"비밀번호"}
+            InputRefs={InputRefs}
+            index={1}
             onChange={(e) => {
               setPassword(e.target.value.trim());
             }}
+            onKeyDown={(e) => handleKeyDown(e, 1)}
           />
           <InputRightElement
             onMouseEnter={() => setEye(true)}
@@ -105,7 +123,12 @@ export function LoginComponent() {
             )}
           </InputRightElement>
         </InputGroup>
-        <Button onClick={handleLogin}>로그인</Button>
+        <Button
+          isDisabled={!(email && password.length >= 8)}
+          onClick={handleLogin}
+        >
+          로그인
+        </Button>
       </OuttestBox>
     </Center>
   );

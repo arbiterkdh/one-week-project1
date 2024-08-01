@@ -16,12 +16,19 @@ import java.util.Map;
 public class BoardService {
     private final BoardMapper boardMapper;
 
-    public Map<String, Object> getBoardList(Integer page, String searchType, String keyword) {
+    public Map<String, Object> getBoardList(
+            Integer page,
+            String boardType,
+            String searchType,
+            String keyword,
+            String sortState,
+            String sortType
+    ) {
         Integer offset = (page - 1) * 10;
-        Integer countAll = boardMapper.countAllBoardBySearchTypeAndKeyword(searchType, keyword);
+        Integer countAll = boardMapper.countAllBoardByBoardTypeAndSearchTypeAndKeyword(boardType, searchType, keyword);
 
         List<Board> boardList =
-                boardMapper.selectAllBoardBySearchTypeAndKeyword(searchType, keyword, offset);
+                boardMapper.selectAllBoardBySearchTypeAndKeyword(boardType, searchType, keyword, sortState, sortType, offset);
 
         Integer endPageNumber = (countAll - 1) / 10 + 1;
         Integer leftPageNumber =
@@ -77,8 +84,6 @@ public class BoardService {
     }
 
     public Board handleBoardLike(Board board) {
-        System.out.println("boardId" + board.getBoardId());
-        System.out.println("boardMemberId" + board.getBoardMemberId());
         boolean isLikedBoard = boardMapper.selectBoardLike(board.getBoardId(), board.getBoardMemberId()) > 0;
         if (isLikedBoard) {
             boardMapper.deleteBoardLike(board.getBoardId(), board.getBoardMemberId());

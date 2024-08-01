@@ -1,5 +1,5 @@
 import { Box, Center, Flex, useToast } from "@chakra-ui/react";
-import { NavBox } from "../css/component/box/NavBox.jsx";
+import { NavBox } from "../css/component/Box/NavBox.jsx";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { LoginContext } from "../LoginProvider.jsx";

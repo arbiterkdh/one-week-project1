@@ -21,10 +21,10 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
-import { HeaderBox } from "../../../css/component/box/HeaderBox.jsx";
+import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
+import { HeaderBox } from "../../../css/component/Box/HeaderBox.jsx";
 import { useContext, useEffect, useState } from "react";
-import { CounterBox } from "../../../css/component/box/CounterBox.jsx";
+import { CounterBox } from "../../../css/component/Box/CounterBox.jsx";
 import { EmailVerifyComponent } from "./email/EmailVerifyComponent.jsx";
 import axios from "axios";
 import {

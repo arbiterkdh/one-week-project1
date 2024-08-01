@@ -90,6 +90,11 @@ FROM board;
 SELECT *
 FROM board;
 
+SELECT *
+FROM board
+WHERE board_title LIKE '%좋다%'
+  AND board_type = 'talk';
+
 CREATE TABLE board_comment
 (
     board_comment_id        INT PRIMARY KEY AUTO_INCREMENT,

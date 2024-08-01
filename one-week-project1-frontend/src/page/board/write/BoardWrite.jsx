@@ -15,7 +15,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
+import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { LoginContext } from "../../../LoginProvider.jsx";
@@ -104,7 +104,7 @@ export function BoardWrite() {
           isDisabled={!isAllConditionChecked}
           onClick={() => uploadModalOnOpen()}
         >
-          글 업로드 만들곳
+          업로드
         </Button>
       </OuttestBox>
       <Modal isOpen={uploadModalIsOpen} onClose={uploadModalOnClose}>

@@ -19,8 +19,8 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
-import { HeaderBox } from "../../../css/component/box/HeaderBox.jsx";
+import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
+import { HeaderBox } from "../../../css/component/Box/HeaderBox.jsx";
 
 export function BoardModify() {
   const account = useContext(LoginContext);
@@ -40,6 +40,8 @@ export function BoardModify() {
   const [boardType, setBoardType] = useState("");
   const [boardTitle, setBoardTitle] = useState("");
   const [boardContent, setBoardContent] = useState("");
+
+  const [clickedButton, setClickedButton] = useState("");
 
   useEffect(() => {
     if (account.hasAccess(boardMemberId)) {
@@ -126,23 +128,47 @@ export function BoardModify() {
         <Flex>
           <Button
             isDisabled={!isAllConditionChecked}
-            onClick={boardModifyModalOnOpen}
+            onClick={() => {
+              setClickedButton("modify");
+              boardModifyModalOnOpen();
+            }}
           >
             수정
           </Button>
-          <Button>취소</Button>
+          <Button
+            onClick={() => {
+              setClickedButton("cancel");
+              boardModifyModalOnOpen();
+            }}
+          >
+            취소
+          </Button>
         </Flex>
       </OuttestBox>
       <Modal isOpen={boardModifyModalIsOpen} onClose={boardModifyModalOnClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            수정 확인
+            {clickedButton === "modify" ? "수정 확인" : "취소 확인"}
             <ModalCloseButton />
           </ModalHeader>
-          <ModalBody>이대로 수정하시겠습니까?</ModalBody>
+          <ModalBody>
+            {clickedButton === "modify"
+              ? "이대로 수정하시겠습니까?"
+              : "글 수정을 취소하시겠습니까?"}
+          </ModalBody>
           <ModalFooter>
-            <Button onClick={handleClickBoardModifyButton}>확인</Button>
+            <Button
+              onClick={() => {
+                if (clickedButton === "modify") {
+                  handleClickBoardModifyButton();
+                } else {
+                  navigate(`/board/view/${boardId}`);
+                }
+              }}
+            >
+              확인
+            </Button>
             <Button onClick={boardModifyModalOnClose}>취소</Button>
           </ModalFooter>
         </ModalContent>

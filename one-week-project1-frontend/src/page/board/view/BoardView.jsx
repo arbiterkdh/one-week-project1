@@ -16,12 +16,12 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { OuttestBox } from "../../../css/component/box/OuttestBox.jsx";
+import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { BoardComment } from "./comment/BoardComment.jsx";
-import { TitleBox } from "../../../css/component/box/TitleBox.jsx";
+import { TitleBox } from "../../../css/component/Box/TitleBox.jsx";
 import {
   faCommentDots,
   faEye,
@@ -56,6 +56,7 @@ export function BoardView() {
       .get(`/api/board/view/${boardId}`)
       .then((res) => {
         setBoard(res.data);
+        setLiked(res.data.isLikedByMemberId);
         if (res.data.boardType === "talk") {
           setBoardType("잡담/유머/힐링");
         } else if (res.data.boardType === "info") {

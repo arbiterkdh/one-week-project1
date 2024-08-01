@@ -1,7 +1,7 @@
 import { Button, Flex, Input, Stack } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
-import { TitleBox } from "../../../../css/component/box/TitleBox.jsx";
+import { TitleBox } from "../../../../css/component/Box/TitleBox.jsx";
 import { useState } from "react";
 
 export function BoardComment() {
