@@ -72,24 +72,22 @@ public interface BoardMapper {
             <script>
             SELECT
                 b.board_id,
-                b.board_member_id,
                 b.board_type,
                 b.board_title,
-                b.board_content,
                 b.board_inserted,
                 b.board_updated,
                 b.board_view_count,
                 m.member_nickname AS member_nickname,
-                COUNT(bl.board_like_member_id) AS board_like_count,
-                COUNT(bc.board_comment_member_id) AS board_comment_count
+                COUNT(DISTINCT bl.board_like_member_id) AS board_like_count,
+                COUNT(DISTINCT bc.board_comment_member_id) AS board_comment_count
             FROM board b JOIN member m ON b.board_member_id = m.member_id
                          LEFT JOIN board_like bl ON b.board_id = bl.board_like_board_id
                          LEFT JOIN board_comment bc ON b.board_id = bc.board_comment_board_id
-            <trim prefix="WHERE" prefixOverrides="AND| OR">
+            <trim prefix="WHERE" prefixOverrides="AND">
                 <if test="boardType != 'general'">
                     b.board_type = #{boardType}
                 </if>
-                <if test="keyword != null">
+                <if test="keyword != null and searchType != null">
                     <bind name="pattern" value="'%' + keyword + '%'" />
                     <choose>
                         <when test="searchType == 'title'">
@@ -116,38 +114,29 @@ public interface BoardMapper {
             GROUP BY b.board_id
             ORDER BY
             <choose>
-                <when test="sortState == 'none'">
-                    b.board_id DESC
-                </when>
+                <when test="sortState == 'none'"></when>
                 <otherwise>
                     <choose>
                         <when test="sortType == 'like'">
                             <if test="sortState == 'up'">
-                                board_like_count DESC
+                                board_like_count DESC,
                             </if>
                             <if test="sortState == 'down'">
-                                board_like_count ASC
+                                board_like_count ASC,
                             </if>
                         </when>
                         <when test="sortType == 'view'">
                             <if test="sortState == 'up'">
-                                b.board_view_count DESC
+                                b.board_view_count DESC,
                             </if>
                             <if test="sortState == 'down'">
-                                b.board_view_count ASC
-                            </if>
-                        </when>
-                        <when test="sortType == 'date'">
-                            <if test="sortState == 'up'">
-                                b.board_inserted DESC
-                            </if>
-                            <if test="sortState == 'down'">
-                                b.board_inserted ASC
+                                b.board_view_count ASC,
                             </if>
                         </when>
                     </choose>
                 </otherwise>
             </choose>
+            b.board_id DESC
             LIMIT #{offset}, 10
             </script>
             """)

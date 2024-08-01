@@ -19,9 +19,10 @@ import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { LoginContext } from "../../../LoginProvider.jsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function BoardWrite() {
+  const location = useLocation();
   const account = useContext(LoginContext);
 
   const {
@@ -46,7 +47,10 @@ export function BoardWrite() {
         position: "bottom-left",
       });
     }
-  }, []);
+    if (location.state && location.state.boardType) {
+      setBoardType(location.state.boardType);
+    }
+  }, [location.state]);
 
   function handleUploadBoardWrite() {
     axios

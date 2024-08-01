@@ -59,9 +59,13 @@ public class BoardService {
         if (board != null) {
             boardMapper.updateBoardViewCountByBoardId(boardId);
             board = boardMapper.selectBoardByBoardId(boardId);
-            board.setIsLikedByMemberId(
-                    boardMapper.selectBoardLike(
-                            boardId, Integer.parseInt(authentication.getName())) > 0);
+
+            if (authentication != null) {
+                board.setIsLikedByMemberId(
+                        boardMapper.selectBoardLike(
+                                boardId, Integer.parseInt(authentication.getName())) > 0);
+            }
+
             return board;
         }
         return null;

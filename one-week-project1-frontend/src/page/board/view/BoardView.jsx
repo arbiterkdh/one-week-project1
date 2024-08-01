@@ -12,12 +12,13 @@ import {
   ModalHeader,
   ModalOverlay,
   Spinner,
+  Text,
   Textarea,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { OuttestBox } from "../../../css/component/Box/OuttestBox.jsx";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { BoardComment } from "./comment/BoardComment.jsx";
@@ -33,6 +34,7 @@ import { LoginContext } from "../../../LoginProvider.jsx";
 
 export function BoardView() {
   const account = useContext(LoginContext);
+  const location = useLocation();
 
   const { boardId } = useParams();
 
@@ -47,6 +49,7 @@ export function BoardView() {
 
   const [board, setBoard] = useState(null);
   const [boardType, setBoardType] = useState("");
+  const [boardInserted, setBoardInserted] = useState("");
 
   const [liked, setLiked] = useState(false);
   const [mouseOnLikeButton, setMouseOnLikeButton] = useState(false);
@@ -72,7 +75,11 @@ export function BoardView() {
       .catch((err) => {
         console.log("게시물 조회 요청중 오류: " + err);
       });
-  }, []);
+
+    if (location.state && location.state.boardInserted) {
+      setBoardInserted(location.state.boardInserted);
+    }
+  }, [location.state]);
 
   function handleClickDeleteBoard() {
     axios
@@ -99,25 +106,38 @@ export function BoardView() {
   }
 
   function handleClickLikeButton() {
-    axios
-      .post("/api/board/like", {
-        boardId: board.boardId,
-        boardMemberId: account.id,
-      })
-      .then((res) => {
-        setBoard(res.data);
-      })
-      .catch((err) => {
-        console.log("좋아요 버튼 요청중 오류: " + err);
+    if (account.isLoggedIn()) {
+      setLiked(!liked);
+      axios
+        .post("/api/board/like", {
+          boardId: board.boardId,
+          boardMemberId: account.id,
+        })
+        .then((res) => {
+          setBoard(res.data);
+        })
+        .catch((err) => {
+          setLiked(!liked);
+          console.log("좋아요 버튼 요청중 오류: " + err);
+        });
+    } else {
+      toast({
+        status: "warning",
+        description: "로그인이 필요한 서비스입니다.",
+        position: "bottom-left",
       });
+    }
   }
 
   return (
     <Center>
-      {board ? (
-        <OuttestBox>
+      <OuttestBox>
+        {board ? (
           <Box minH={"640px"}>
-            <Badge>{boardType}</Badge>
+            <Flex justifyContent={"space-between"}>
+              <Badge>{boardType}</Badge>
+              <Text fontSize={"xs"}>작성일시: {boardInserted}</Text>
+            </Flex>
             <TitleBox p={2} m={1}>
               {board.boardTitle}
             </TitleBox>
@@ -161,10 +181,7 @@ export function BoardView() {
                 rounded={"full"}
                 cursor={"pointer"}
                 border={"1px solid"}
-                onClick={() => {
-                  setLiked(!liked);
-                  handleClickLikeButton();
-                }}
+                onClick={() => handleClickLikeButton()}
                 onMouseEnter={() => setMouseOnLikeButton(true)}
                 onMouseLeave={() => setMouseOnLikeButton(false)}
               >
@@ -183,23 +200,55 @@ export function BoardView() {
               </Box>
             </Center>
           </Box>
-          {account.hasAccess(board.boardMemberId) && (
-            <Flex justifyContent={"end"}>
-              <Button
-                onClick={() =>
-                  navigate(`/board/modify/${board.boardMemberId}/${boardId}`)
-                }
-              >
-                수정
-              </Button>
-              <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
+        ) : (
+          <Box minH={"640px"}>
+            <Flex>
+              <Badge>
+                loading...
+                <Spinner size={"xs"} />
+              </Badge>
             </Flex>
-          )}
-          <BoardComment />
-        </OuttestBox>
-      ) : (
-        <Spinner size="xl" />
-      )}
+            <TitleBox p={2} m={1}>
+              Loading...
+            </TitleBox>
+            <Flex p={2} h={"35px"} bgColor={"blackAlpha.200"} />
+            <Box
+              minH={"500px"}
+              borderRadius={"5px"}
+              border={"1px solid lightgray"}
+            >
+              <Spinner />
+            </Box>
+            <Center>
+              <Box
+                m={2}
+                align={"center"}
+                alignContent={"center"}
+                w={"80px"}
+                h={"80px"}
+                rounded={"full"}
+                border={"1px solid"}
+              >
+                <FontAwesomeIcon size={"3x"} icon={regularThumbsUp} />
+              </Box>
+            </Center>
+          </Box>
+        )}
+        {board && account.hasAccess(board.boardMemberId) && (
+          <Flex justifyContent={"end"}>
+            <Button
+              onClick={() =>
+                navigate(`/board/modify/${board.boardMemberId}/${boardId}`)
+              }
+            >
+              수정
+            </Button>
+            <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
+          </Flex>
+        )}
+        <BoardComment />
+      </OuttestBox>
+
       <Modal isOpen={boardDeleteModalIsOpen} onClose={boardDeleteModalOnClose}>
         <ModalOverlay />
         <ModalContent>

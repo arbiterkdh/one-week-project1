@@ -12,6 +12,7 @@ import {
   Table,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
@@ -27,6 +28,8 @@ import {
   faForwardFast,
   faMagnifyingGlass,
   faSort,
+  faSortDown,
+  faSortUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { HeaderBox } from "../../css/component/Box/HeaderBox.jsx";
@@ -45,6 +48,8 @@ export function Board() {
   const [boardType, setBoardType] = useState(
     searchParams.get("boardType") ? searchParams.get("boardType") : "general",
   );
+  const [boardName, setBoardName] = useState("종합");
+
   const [currentPage, setCurrentPage] = useState(
     searchParams.get("page") ? searchParams.get("page") : 1,
   );
@@ -122,6 +127,19 @@ export function Board() {
   }
 
   function handleClickBoardType(boardType) {
+    let board;
+    if (boardType === "talk") {
+      board = "잡담/유머/힐링";
+    } else if (boardType === "info") {
+      board = "정보/지식공유";
+    } else if (boardType === "issue") {
+      board = "정치/사회/이슈";
+    } else if (boardType === "culture") {
+      board = "게임/문화/연예";
+    } else if (boardType === "other") {
+      board = "기타";
+    }
+    setBoardName(board);
     searchParams.set("page", 1);
     searchParams.set("boardType", boardType);
     setBoardType(boardType);
@@ -164,7 +182,7 @@ export function Board() {
         <OuttestBox minH={"768px"}>
           <Flex alignItems={"center"} gap={1}>
             <Flex w={"100%"} justifyContent={"space-between"} gap={1}>
-              <HeaderBox w={"35%"}>종합게시판</HeaderBox>
+              <HeaderBox w={"35%"}>{boardName} 게시판</HeaderBox>
               <Flex w={"65%"} gap={1} alignItems={"center"}>
                 <Button onClick={() => handleClickBoardType("talk")}>
                   잡담/유머/힐링
@@ -197,21 +215,37 @@ export function Board() {
                     onClick={() => handleClickBoardSort(sortCount, "like")}
                   >
                     좋아요
-                    {sortState === "none" && sortType !== "date" && <FontAwesomeIcon icon={faSort} />}
+                    {sortState === "none" || sortType !== "like" ? (
+                      <FontAwesomeIcon icon={faSort} />
+                    ) : sortType === "like" && sortState === "up" ? (
+                      <FontAwesomeIcon icon={faSortDown} />
+                    ) : (
+                      <FontAwesomeIcon icon={faSortUp} />
+                    )}
                   </ClickableTh>
                   <ClickableTh
                     w={"10%"}
                     onClick={() => handleClickBoardSort(sortCount, "view")}
                   >
                     조회수
-                    {sortState === "none" && <FontAwesomeIcon icon={faSort} />}
+                    {sortState === "none" || sortType !== "view" ? (
+                      <FontAwesomeIcon icon={faSort} />
+                    ) : sortType === "view" && sortState === "up" ? (
+                      <FontAwesomeIcon icon={faSortDown} />
+                    ) : (
+                      <FontAwesomeIcon icon={faSortUp} />
+                    )}
                   </ClickableTh>
                   <Th w={"11%"}>작성일시</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {isGetting ? (
-                  <Spinner size={"lg"} />
+                  <Tr>
+                    <Td colSpan={7} textAlign="center">
+                      <Spinner size={"lg"} />
+                    </Td>
+                  </Tr>
                 ) : boardList.length > 0 ? (
                   boardList.map((board, index) => {
                     let boardType = "";
@@ -225,12 +259,6 @@ export function Board() {
                       boardType = "게임/문화/연예";
                     } else if (board.boardType === "other") {
                       boardType = "기타";
-                    }
-
-                    let isModified = false;
-
-                    if (board.boardUpdated !== board.boardInserted) {
-                      isModified = true;
                     }
 
                     const now = new Date();
@@ -247,13 +275,16 @@ export function Board() {
                     let boardInserted = "";
 
                     if (diffMinutes < 1) {
-                      boardInserted = diffSeconds + "초 전";
+                      boardInserted = diffSeconds + "초전";
                     } else if (diffHours < 1) {
-                      boardInserted = diffMinutes + "분 전";
+                      boardInserted = diffMinutes + "분전";
                     } else if (diffDays < 1) {
-                      boardInserted = diffHours + "시간 전";
+                      boardInserted = diffHours + "시간전";
                     } else {
                       boardInserted = board.boardInserted.slice(0, -9);
+                    }
+                    if (board.boardUpdated !== board.boardInserted) {
+                      boardInserted += " (수정됨)";
                     }
 
                     return (
@@ -276,7 +307,9 @@ export function Board() {
                               fontSize={"small"}
                               cursor={"pointer"}
                               onClick={() => {
-                                navigate(`/board/view/${board.boardId}`);
+                                navigate(`/board/view/${board.boardId}`, {
+                                  state: { boardInserted },
+                                });
                               }}
                             >
                               {isSearched ? (
@@ -291,7 +324,7 @@ export function Board() {
                                   {board.boardTitle}
                                 </Highlight>
                               ) : (
-                                <Box>{board.boardTitle}</Box>
+                                <Text>{board.boardTitle}</Text>
                               )}
                             </Box>
                             <Badge>+{board.boardCommentCount}</Badge>
@@ -303,8 +336,8 @@ export function Board() {
                         <Td fontSize={"small"}>{board.boardLikeCount}</Td>
                         <Td fontSize={"small"}>{board.boardViewCount}</Td>
                         <Td fontSize={"small"}>
-                          <Box>{boardInserted}</Box>
-                          <Box>{isModified && "(수정됨)"}</Box>
+                          <Text>{boardInserted.split(" ")[0]}</Text>
+                          <Text>{boardInserted.split(" ")[1]}</Text>
                         </Td>
                       </Tr>
                     );
@@ -414,7 +447,9 @@ export function Board() {
                 <SmallButton
                   h={"30px"}
                   w={"60px"}
-                  onClick={() => navigate("/board/write")}
+                  onClick={() =>
+                    navigate("/board/write", { state: { boardType } })
+                  }
                 >
                   글쓰기
                 </SmallButton>

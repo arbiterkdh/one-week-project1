@@ -10,7 +10,7 @@ export function CustomInput({ index, InputRefs, ...props }) {
 
   return (
     <Input
-      ref={(el) => (InputRefs.current[index + 1] = el)}
+      ref={(el) => (InputRefs.current[index] = el)}
       onKeyDown={(e) => handlePressKeyDown(e, index)}
       {...props}
     />

@@ -90,10 +90,28 @@ FROM board;
 SELECT *
 FROM board;
 
-SELECT *
-FROM board
-WHERE board_title LIKE '%좋다%'
-  AND board_type = 'talk';
+EXPLAIN
+SELECT b.board_id,
+       b.board_member_id,
+       b.board_type,
+       b.board_title,
+       b.board_content,
+       b.board_inserted,
+       b.board_updated,
+       b.board_view_count,
+       m.member_nickname                 AS member_nickname,
+       COUNT(bl.board_like_member_id)    AS board_like_count,
+       COUNT(bc.board_comment_member_id) AS board_comment_count
+FROM board b
+         JOIN member m ON b.board_member_id = m.member_id
+         LEFT JOIN board_like bl ON b.board_id = bl.board_like_board_id
+         LEFT JOIN board_comment bc ON b.board_id = bc.board_comment_board_id
+WHERE b.board_title LIKE '%다%'
+GROUP BY b.board_id
+ORDER BY board_like_count DESC, b.board_id DESC;
+
+SHOW INDEX FROM board;
+SHOW INDEX FROM member;
 
 CREATE TABLE board_comment
 (
