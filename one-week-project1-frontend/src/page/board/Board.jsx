@@ -88,6 +88,7 @@ export function Board() {
         }
         if (!searchParams.get("boardType")) {
           setBoardType("general");
+          setBoardName("종합");
         }
         if (!searchParams.get("keyword")) {
           setSelected("all");
@@ -138,6 +139,8 @@ export function Board() {
       board = "게임/문화/연예";
     } else if (boardType === "other") {
       board = "기타";
+    } else {
+      board = "종합";
     }
     setBoardName(board);
     searchParams.set("page", 1);
@@ -182,8 +185,15 @@ export function Board() {
         <OuttestBox minH={"768px"}>
           <Flex alignItems={"center"} gap={1}>
             <Flex w={"100%"} justifyContent={"space-between"} gap={1}>
-              <HeaderBox w={"35%"}>{boardName} 게시판</HeaderBox>
+              {boardName === "종합" || boardName === "기타" ? (
+                <HeaderBox w={"35%"}>{boardName} 게시판</HeaderBox>
+              ) : (
+                <HeaderBox w={"35%"}>{boardName}</HeaderBox>
+              )}
               <Flex w={"65%"} gap={1} alignItems={"center"}>
+                <Button onClick={() => handleClickBoardType("general")}>
+                  종합
+                </Button>
                 <Button onClick={() => handleClickBoardType("talk")}>
                   잡담/유머/힐링
                 </Button>

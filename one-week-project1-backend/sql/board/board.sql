@@ -108,6 +108,7 @@ WHERE b.board_title LIKE '%다%'
 GROUP BY b.board_id
 ORDER BY board_like_count DESC, b.board_id DESC;
 
+
 CREATE INDEX idx_board_type ON board (board_type);
 CREATE INDEX idx_board_title ON board (board_title);
 CREATE INDEX idx_board_content ON board (board_content);
