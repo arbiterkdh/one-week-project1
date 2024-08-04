@@ -1,7 +1,9 @@
 package com.oneweekproject1backend.service.board;
 
 import com.oneweekproject1backend.domain.board.Board;
+import com.oneweekproject1backend.domain.board.comment.BoardComment;
 import com.oneweekproject1backend.mapper.board.BoardMapper;
+import com.oneweekproject1backend.mapper.board.comment.BoardCommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardMapper boardMapper;
+    private final BoardCommentMapper boardCommentMapper;
 
     public Map<String, Object> getBoardList(
             Integer page,
@@ -79,7 +82,14 @@ public class BoardService {
     }
 
     public boolean deleteBoard(Integer boardMemberId, Integer boardId) {
-
+        int likeCount = boardMapper.selectBoardLikeByBoardLikeBoardId(boardId);
+        if (likeCount > 0) {
+            boardMapper.deleteBoardLikeByBoardLikeBoardId(boardId);
+        }
+        List<BoardComment> commentCount = boardCommentMapper.selectAllCommentByBoardCommentBoardId(boardId);
+        if (!commentCount.isEmpty()) {
+            boardCommentMapper.deleteAllBoardCommentByBoardId(boardId);
+        }
         return boardMapper.deleteBoardByBoardMemberIdAndBoardId(boardMemberId, boardId) > 0;
     }
 

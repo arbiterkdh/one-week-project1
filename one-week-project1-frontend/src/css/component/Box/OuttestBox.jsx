@@ -7,7 +7,7 @@ export function OuttestBox(props) {
       p={3}
       borderRadius={"10px"}
       border={"2px solid darkgreen"}
-      w={"1024px"}
+      minW={"1024px"}
       alignItems={"center"}
       boxShadow="
         0 12px 24px rgba(0, 0, 0, 0.03),

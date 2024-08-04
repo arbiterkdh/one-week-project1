@@ -31,6 +31,7 @@ import {
 import { faThumbsUp as regularThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LoginContext } from "../../../LoginProvider.jsx";
+import { CursorBox } from "../../../css/component/Box/CursorBox.jsx";
 
 export function BoardView() {
   const account = useContext(LoginContext);
@@ -97,7 +98,7 @@ export function BoardView() {
         if (err.response.status === 400) {
           toast({
             status: "error",
-            description: "요청 처리중 오류가 발생했습니다.",
+            description: "삭제 요청 처리중 오류가 발생했습니다.",
             position: "bottom-left",
           });
         }
@@ -148,7 +149,7 @@ export function BoardView() {
               bgColor={"blackAlpha.200"}
             >
               <Box w={"60%"}>
-                <Box>{board.memberNickname}</Box>
+                <CursorBox>{board.memberNickname}</CursorBox>
               </Box>
               <Flex w={"40%"} justifyContent={"space-around"}>
                 <Flex alignItems={"center"}>
@@ -157,7 +158,7 @@ export function BoardView() {
                 </Flex>
                 <Flex alignItems={"center"}>
                   <FontAwesomeIcon opacity={"0.6"} icon={faCommentDots} />
-                  <Box>댓글수</Box>
+                  <Box>{board.boardCommentCount}</Box>
                 </Flex>
                 <Flex alignItems={"center"}>
                   <FontAwesomeIcon opacity={"0.6"} icon={solidThumbsUp} />
@@ -172,15 +173,14 @@ export function BoardView() {
               readOnly
             />
             <Center>
-              <Box
+              <CursorBox
                 m={2}
                 align={"center"}
                 alignContent={"center"}
                 w={"80px"}
                 h={"80px"}
                 rounded={"full"}
-                cursor={"pointer"}
-                border={"1px solid"}
+                border={"2px solid"}
                 onClick={() => handleClickLikeButton()}
                 onMouseEnter={() => setMouseOnLikeButton(true)}
                 onMouseLeave={() => setMouseOnLikeButton(false)}
@@ -197,7 +197,7 @@ export function BoardView() {
                   ) : (
                     <FontAwesomeIcon size={"3x"} icon={regularThumbsUp} />
                   ))}
-              </Box>
+              </CursorBox>
             </Center>
           </Box>
         ) : (
@@ -246,7 +246,7 @@ export function BoardView() {
             <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
           </Flex>
         )}
-        <BoardComment />
+        <BoardComment boardId={boardId} />
       </OuttestBox>
 
       <Modal isOpen={boardDeleteModalIsOpen} onClose={boardDeleteModalOnClose}>

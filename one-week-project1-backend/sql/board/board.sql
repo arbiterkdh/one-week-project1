@@ -130,8 +130,14 @@ CREATE TABLE board_comment
     board_comment_id        INT PRIMARY KEY AUTO_INCREMENT,
     board_comment_board_id  INT REFERENCES board (board_id),
     board_comment_member_id INT REFERENCES member (member_id),
-    board_comment_content   VARCHAR(1000) NOT NULL
+    board_comment_content   VARCHAR(1000) NOT NULL,
+    board_comment_inserted  DATETIME      NOT NULL DEFAULT NOW(),
+    board_comment_updated   DATETIME      NOT NULL DEFAULT NOW()
 );
+
+INSERT INTO board_comment
+(board_comment_board_id, board_comment_member_id, board_comment_content)
+VALUES (512, 2, 'ㅇㅈㅇㅈ');
 
 SELECT *
 FROM board_comment;

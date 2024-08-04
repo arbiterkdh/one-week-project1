@@ -5,6 +5,7 @@ import com.oneweekproject1backend.service.board.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class BoardController {
     }
 
     @PostMapping("/write/upload")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity writeBoard(Board board) {
         Board addedBoard = null;
         addedBoard = boardService.addBoard(board);
@@ -53,6 +55,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/delete/{boardMemberId}/{boardId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity deleteBoard(@PathVariable Integer boardMemberId, @PathVariable Integer boardId) {
         boolean result = boardService.deleteBoard(boardMemberId, boardId);
         if (result) {
@@ -62,6 +65,7 @@ public class BoardController {
     }
 
     @PutMapping("/modify")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity updateBoard(@RequestBody Board board) {
         boolean result = boardService.updateBoard(board);
         if (result) {

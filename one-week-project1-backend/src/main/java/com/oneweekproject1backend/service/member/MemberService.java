@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -33,6 +34,10 @@ public class MemberService {
 
     @Value("${spring.mail.username}")
     String fromAddress;
+
+    public boolean hasAccess(Integer memberId, Authentication authentication) {
+        return memberId.equals(Integer.valueOf(authentication.getName()));
+    }
 
     public String checkEmailValidate(String email) {
         boolean isNormalForm = email.matches("^[a-zA-Z0-9\\-_]+@[a-zA-Z0-9-]+\\.[a-zA-Z]+$");

@@ -7,7 +7,8 @@ import { LoginComponent } from "./page/member/login/LoginComponent.jsx";
 import { LoginProvider } from "./LoginProvider.jsx";
 import { SignupComponent } from "./page/member/signup/SignupComponent.jsx";
 import axios from "axios";
-import { BoardModify } from "./page/board/modify/BoardModify.jsx"; // axios interceptor 설정
+import { BoardModify } from "./page/board/modify/BoardModify.jsx";
+import { MemberInfoComponent } from "./page/member/info/MemberInfoComponent.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
       },
       { path: "/signup", element: <SignupComponent /> },
       { path: "/login", element: <LoginComponent /> },
+      { path: "/memberInfo", element: <MemberInfoComponent /> },
     ],
   },
 ]);

@@ -35,6 +35,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { HeaderBox } from "../../css/component/Box/HeaderBox.jsx";
 import { SmallButton } from "../../css/component/Button/SmallButton.jsx";
 import { ClickableTh } from "../../css/component/Table/Thead/Th/ClickableTh.jsx";
+import { CursorBox } from "../../css/component/Box/CursorBox.jsx";
 
 export function Board() {
   const account = useContext(LoginContext);
@@ -313,9 +314,8 @@ export function Board() {
                         </Td>
                         <Td>
                           <Flex alignItems={"center"}>
-                            <Box
+                            <CursorBox
                               fontSize={"small"}
-                              cursor={"pointer"}
                               onClick={() => {
                                 navigate(`/board/view/${board.boardId}`, {
                                   state: { boardInserted },
@@ -336,8 +336,10 @@ export function Board() {
                               ) : (
                                 <Text>{board.boardTitle}</Text>
                               )}
-                            </Box>
-                            <Badge>+{board.boardCommentCount}</Badge>
+                            </CursorBox>
+                            {board.boardCommentCount > 0 && (
+                              <Badge>+{board.boardCommentCount}</Badge>
+                            )}
                           </Flex>
                         </Td>
                         <Td fontSize={"small"} cursor={"pointer"}>

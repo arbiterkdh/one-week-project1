@@ -3,6 +3,8 @@ import { NavBox } from "../css/component/Box/NavBox.jsx";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { LoginContext } from "../LoginProvider.jsx";
+import { faBell } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export function Navbar() {
   const account = useContext(LoginContext);
@@ -33,14 +35,32 @@ export function Navbar() {
             <NavBox onClick={() => navigate("/")}>7판</NavBox>
             <NavBox onClick={() => navigate("/board")}>종합게시판</NavBox>
             {account.isLoggedIn() && (
-              <Box>
+              <Box align={"right"}>
                 <Flex>
-                  <NavBox>{account.nickname} 님</NavBox>
-                  <NavBox onClick={() => navigate("/memberinfo")}>
-                    회원정보
+                  <NavBox onClick={() => navigate("/memberInfo")}>
+                    {account.nickname} 님
+                  </NavBox>
+                  <NavBox
+                    w={"30px"}
+                    h={"30px"}
+                    align={"center"}
+                    position={"relative"}
+                  >
+                    <Box
+                      position={"absolute"}
+                      left={"19px"}
+                      top={"-61px"}
+                      color={"red.500"}
+                      fontSize={"6xl"}
+                    >
+                      .
+                    </Box>
+                    <FontAwesomeIcon icon={faBell} />
                   </NavBox>
                 </Flex>
                 <NavBox
+                  w={"80px"}
+                  textAlign={"end"}
                   onClick={() => {
                     account.logout();
                     navigate("/");

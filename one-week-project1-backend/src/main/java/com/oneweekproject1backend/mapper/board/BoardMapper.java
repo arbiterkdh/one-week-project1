@@ -19,21 +19,14 @@ public interface BoardMapper {
                 b.board_updated,
                 b.board_view_count,
                 m.member_nickname AS member_nickname,
-                COUNT(bl.board_like_member_id) AS board_like_count,
-                COUNT(bc.board_comment_member_id) AS board_comment_count
+                (SELECT COUNT(*) FROM board_like bl WHERE bl.board_like_board_id = b.board_id) AS board_like_count,
+                COUNT(DISTINCT bc.board_comment_id) AS board_comment_count
             FROM board b JOIN member m ON b.board_member_id = m.member_id
                          LEFT JOIN board_like bl ON b.board_id = bl.board_like_board_id
                          LEFT JOIN board_comment bc ON b.board_id = bc.board_comment_board_id
-            WHERE board_id=#{boardId}
+            WHERE b.board_id=#{boardId}
             """)
     Board selectBoardByBoardId(Integer boardId);
-
-    @Select("""
-            SELECT COUNT(*)
-            FROM board_like
-            WHERE board_like_board_id=#{boardId}
-            """)
-    Integer countBoardLikeByBoardId(Integer boardId);
 
     @Update("""
             UPDATE board
@@ -78,8 +71,8 @@ public interface BoardMapper {
                 b.board_updated,
                 b.board_view_count,
                 m.member_nickname AS member_nickname,
-                COUNT(DISTINCT bl.board_like_member_id) AS board_like_count,
-                COUNT(DISTINCT bc.board_comment_member_id) AS board_comment_count
+                (SELECT COUNT(*) FROM board_like bl WHERE bl.board_like_board_id = b.board_id) AS board_like_count,
+                COUNT(DISTINCT bc.board_comment_id) AS board_comment_count
             FROM board b JOIN member m ON b.board_member_id = m.member_id
                          LEFT JOIN board_like bl ON b.board_id = bl.board_like_board_id
                          LEFT JOIN board_comment bc ON b.board_id = bc.board_comment_board_id
@@ -198,4 +191,16 @@ public interface BoardMapper {
             VALUES(#{boardId}, #{boardMemberId})
             """)
     int insertBoardLike(Integer boardId, Integer boardMemberId);
+
+    @Select("""
+            SELECT COUNT(*) FROM board_like
+            WHERE board_like_board_id=#{boardId}
+            """)
+    int selectBoardLikeByBoardLikeBoardId(Integer boardId);
+
+    @Delete("""
+            DELETE FROM board_like
+            WHERE board_like_board_id=#{boardId}
+            """)
+    int deleteBoardLikeByBoardLikeBoardId(Integer boardId);
 }

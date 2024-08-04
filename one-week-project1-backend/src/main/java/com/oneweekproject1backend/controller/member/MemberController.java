@@ -27,4 +27,6 @@ public class MemberController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
+    
 }
