@@ -67,7 +67,7 @@ export function Navbar() {
                     toast({
                       status: "info",
                       description: "로그아웃되었습니다.",
-                      position: "bottom-right",
+                      position: "bottom-left",
                     });
                   }}
                 >

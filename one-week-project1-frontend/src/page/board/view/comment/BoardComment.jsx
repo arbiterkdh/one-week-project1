@@ -30,7 +30,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { TooltipButton } from "../../../../css/component/Button/TooltipButton.jsx";
 
-export function BoardComment({ boardId }) {
+export function BoardComment({ boardId, boardMemberId }) {
   const account = useContext(LoginContext);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -168,6 +168,11 @@ export function BoardComment({ boardId }) {
       </Flex>
       <Stack minH={"200px"}>
         {commentList.map((comment, index) => {
+          const isCommentWriter = comment.boardCommentMemberId == boardMemberId;
+          const commentNickname = isCommentWriter
+            ? comment.memberNickname + "(글쓴이)"
+            : comment.memberNickname;
+
           const now = new Date();
           const commentTime = new Date(comment.boardCommentInserted);
 
@@ -200,7 +205,7 @@ export function BoardComment({ boardId }) {
               border={"1px solid"}
             >
               <Flex justifyContent={"space-between"}>
-                <Text>{comment.memberNickname}</Text>
+                <Text>{commentNickname}</Text>
                 <Text>{boardCommentInserted}</Text>
               </Flex>
               <Flex>

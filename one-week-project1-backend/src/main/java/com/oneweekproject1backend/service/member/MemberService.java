@@ -46,6 +46,7 @@ public class MemberService {
         } else if (memberMapper.selectMemberByMemberEmail(email) != null) {
             return "already signed in";
         } else if (memberMapper.selectEmailVerifyNumberByEmail(email) != null) {
+            memberMapper.deleteEmailVerifyNumberByEmail(email);
             return "already in verifying";
         }
         return "valid email";
@@ -114,7 +115,7 @@ public class MemberService {
                 JwtClaimsSet claims = JwtClaimsSet.builder()
                         .issuer("self")
                         .issuedAt(now)
-                        .expiresAt(now.plusSeconds(60 * 60 * 24))
+                        .expiresAt(now.plusSeconds(60 * 60))
                         .subject(db.getMemberId().toString())
                         .claim("nickname", db.getMemberNickname())
                         .claim("email", db.getMemberEmail())
@@ -127,5 +128,9 @@ public class MemberService {
             }
         }
         return result;
+    }
+
+    public void deleteEmailVerifyNumberByExpired() {
+        int result = memberMapper.deleteEmailVerifyNumberByExpired();
     }
 }

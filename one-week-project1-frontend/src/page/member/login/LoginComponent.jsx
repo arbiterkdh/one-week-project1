@@ -48,7 +48,7 @@ export function LoginComponent() {
         toast({
           status: "success",
           description: "로그인되었습니다.",
-          position: "bottom-right",
+          position: "bottom-left",
         });
         setEmail("");
         navigate("/");
@@ -58,7 +58,7 @@ export function LoginComponent() {
         toast({
           status: "warning",
           description: "이메일 또는 비밀번호를 확인해주세요.",
-          position: "bottom-right",
+          position: "bottom-left",
         });
         console.log("로그인 요청중 오류: " + err);
       })

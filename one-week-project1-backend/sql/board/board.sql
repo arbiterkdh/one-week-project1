@@ -39,9 +39,11 @@ CREATE TABLE email_verify_number
 (
     email         VARCHAR(200) NOT NULL UNIQUE,
     verify_number INT          NOT NULL UNIQUE,
+    expired       DATETIME     NOT NULL DEFAULT DATE_ADD(NOW(), INTERVAL 5 MINUTE),
     PRIMARY KEY (email, verify_number)
 );
 
+DROP TABLE email_verify_number;
 
 SELECT *
 FROM email_verify_number;

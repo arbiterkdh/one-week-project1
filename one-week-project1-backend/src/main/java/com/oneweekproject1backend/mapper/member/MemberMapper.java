@@ -37,7 +37,8 @@ public interface MemberMapper {
     @Select("""
             SELECT
                 email,
-                verify_number
+                verify_number,
+                expired
             FROM email_verify_number
             WHERE email=#{email}
             """)
@@ -46,7 +47,8 @@ public interface MemberMapper {
     @Select("""
             SELECT
                 email,
-                verify_number
+                verify_number,
+                expired
             FROM email_verify_number
             WHERE verify_number=#{verifyNumber}
             """)
@@ -61,7 +63,8 @@ public interface MemberMapper {
     @Select("""
             SELECT
                 email,
-                verify_number
+                verify_number,
+                expired
             FROM email_verify_number
             WHERE email=#{email}
             AND verify_number=#{verifyNumber}
@@ -95,4 +98,16 @@ public interface MemberMapper {
             WHERE authority_member_id = #{memberId}
             """)
     List<String> selectAuthorityByMemberId(Integer memberId);
+
+    @Delete("""
+            DELETE FROM email_verify_number
+            WHERE expired <= NOW()
+            """)
+    int deleteEmailVerifyNumberByExpired();
+
+    @Delete("""
+            DELETE FROM email_verify_number
+            WHERE email=#{email}
+            """)
+    int deleteEmailVerifyNumberByEmail(String email);
 }

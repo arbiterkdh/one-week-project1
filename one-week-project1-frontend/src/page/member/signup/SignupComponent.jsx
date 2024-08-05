@@ -53,6 +53,7 @@ export function SignupComponent() {
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isVerifiedEmail, setIsVerifiedEmail] = useState(false);
   const [isTrySending, setIsTrySending] = useState(false);
+  const [resetTimer, setResetTimer] = useState(false);
 
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
@@ -76,13 +77,20 @@ export function SignupComponent() {
   function handleSendVerifyNumber(email) {
     axios
       .post("/api/member/signup/email/send", { email })
-      .then((res) => {})
+      .then(() => {
+        toast({
+          status: "info",
+          description: "인증번호가 전송되었습니다. 이메일을 확인해주세요",
+          position: "bottom-left",
+        });
+      })
       .catch((err) => {
         console.log("이메일 전송 요청중 오류: " + err);
         setIsVerifyingEmail(false);
       })
       .finally(() => {
         setIsTrySending(false);
+        setResetTimer(false);
       });
   }
 
@@ -90,7 +98,7 @@ export function SignupComponent() {
     setIsTrySending(true);
 
     try {
-      const res = await axios.post("/api/member/signup/email/check", {
+      await axios.post("/api/member/signup/email/check", {
         email: address + "@" + domain,
       });
       setIsVerifyingEmail(true);
@@ -109,15 +117,15 @@ export function SignupComponent() {
           position: "bottom-left",
         });
       } else if (err.response && err.response.status === 406) {
-        toast({
-          status: "warning",
-          description: "이미 인증중입니다.",
-          position: "bottom-left",
-        });
+        setIsVerifyingEmail(true);
+        setResetTimer(true);
+        handleSendVerifyNumber(address + "@" + domain);
       } else {
         console.error(err);
       }
-      setIsTrySending(false);
+      if (err.response && err.response.status !== 406) {
+        setIsTrySending(false);
+      }
     }
   }
 
@@ -128,7 +136,7 @@ export function SignupComponent() {
         toast({
           status: "success",
           description: "사용 가능한 별명입니다.",
-          position: "bottom-right",
+          position: "bottom-left",
         });
         setIsNicknameChecked(true);
       })
@@ -137,7 +145,7 @@ export function SignupComponent() {
           toast({
             status: "warning",
             description: "이미 사용중인 별명입니다.",
-            position: "bottom-right",
+            position: "bottom-left",
           });
         }
       });
@@ -154,7 +162,7 @@ export function SignupComponent() {
         toast({
           status: "success",
           description: `회원이 되신걸 환영합니다, ${nickname}님.😄`,
-          position: "bottom-right",
+          position: "bottom-left",
         });
         axios
           .post("/api/member/login/token", {
@@ -170,7 +178,7 @@ export function SignupComponent() {
         toast({
           status: "error",
           description: "회원가입중 문제가 발생하였습니다.",
-          position: "bottom-right",
+          position: "bottom-left",
         });
       })
       .finally(() => {
@@ -239,13 +247,21 @@ export function SignupComponent() {
                   isDisabled={address === "" || domain === "" || isTrySending}
                   onClick={handleClickRequestEmailVerifying}
                 >
-                  {isTrySending ? <Spinner /> : "이메일인증"}
+                  {isTrySending ? (
+                    <Spinner />
+                  ) : isVerifyingEmail ? (
+                    "재전송"
+                  ) : (
+                    "이메일인증"
+                  )}
                 </Button>
               </Flex>
             )}
             {isVerifyingEmail && (
               <CounterBox h={"42px"}>
                 <EmailVerifyComponent
+                  resetTimer={resetTimer}
+                  setResetTimer={setResetTimer}
                   isVerifyingEmail={isVerifyingEmail}
                   setIsVerifyingEmail={setIsVerifyingEmail}
                   email={address + "@" + domain}

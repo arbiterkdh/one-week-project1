@@ -246,7 +246,9 @@ export function BoardView() {
             <Button onClick={boardDeleteModalOnOpen}>삭제</Button>
           </Flex>
         )}
-        <BoardComment boardId={boardId} />
+        {board && (
+          <BoardComment boardId={boardId} boardMemberId={board.boardMemberId} />
+        )}
       </OuttestBox>
 
       <Modal isOpen={boardDeleteModalIsOpen} onClose={boardDeleteModalOnClose}>

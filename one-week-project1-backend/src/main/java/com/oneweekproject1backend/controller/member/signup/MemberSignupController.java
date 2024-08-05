@@ -6,6 +6,7 @@ import com.oneweekproject1backend.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -67,5 +68,10 @@ public class MemberSignupController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void cronSchedule() {
+        memberService.deleteEmailVerifyNumberByExpired();
     }
 }

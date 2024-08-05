@@ -14,11 +14,27 @@ export function LoginProvider({ children }) {
 
   const toast = useToast();
 
+  const [timer, setTimer] = useState(0);
+
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      login(accessToken);
+    const token = localStorage.getItem("token");
+    if (token) {
+      login(token);
     }
+  }, [timer]);
+
+  useEffect(() => {
+    if (timer % 5 === 4) {
+      setTimer(0);
+    }
+  }, [timer]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prev) => prev + 1);
+    }, 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   function isLoggedIn() {

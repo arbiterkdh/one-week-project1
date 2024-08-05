@@ -10,6 +10,8 @@ import {
 import axios from "axios";
 
 export function EmailVerifyComponent({
+  resetTimer,
+  setResetTimer,
   isVerifyingEmail,
   setIsVerifyingEmail,
   email,
@@ -38,6 +40,12 @@ export function EmailVerifyComponent({
   }, [isVerifyingEmail]);
 
   useEffect(() => {
+    if (resetTimer) {
+      setRemainTime(5 * 60 * 1000);
+    }
+  }, [resetTimer]);
+
+  useEffect(() => {
     if (isExpired || count === 0) {
       hasFailedVerifyingEmail();
     }
@@ -46,7 +54,14 @@ export function EmailVerifyComponent({
   function hasFailedVerifyingEmail() {
     axios
       .delete(`/api/member/signup/verify/delete/${email}`)
-      .then((res) => {})
+      .then(() => {
+        toast({
+          status: "warning",
+          description:
+            "인증횟수가 초과되었습니다. 이메일인증을 다시 시도해주세요",
+          position: "bottom-left",
+        });
+      })
       .catch((err) => {
         console.log("인증번호 삭제 요청중 오류: " + err);
       });
