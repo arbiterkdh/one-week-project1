@@ -7,6 +7,13 @@ import {
   Flex,
   Highlight,
   Input,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Select,
   Spinner,
   Table,
@@ -75,6 +82,8 @@ export function Board() {
   const [sortCount, setSortCount] = useState(0);
 
   const [isGetting, setIsGetting] = useState(false);
+
+  const [otherMemberInfo, setOtherMemberInfo] = useState({});
 
   useEffect(() => {
     setIsGetting(true);
@@ -342,8 +351,43 @@ export function Board() {
                             )}
                           </Flex>
                         </Td>
-                        <Td fontSize={"small"} cursor={"pointer"}>
+
+                        <Td
+                          cursor={"pointer"}
+                          position={"relative"}
+                          fontSize={"small"}
+                          onClick={() => {
+                            if (board.boardMemberId == account.id) {
+                              navigate("/memberInfo");
+                            } else {
+                              setOtherMemberInfo({
+                                boardId: board.boardId,
+                                boardMemberId: board.boardMemberId,
+                              });
+                            }
+                          }}
+                        >
                           {board.memberNickname}
+                          <Popover>
+                            <PopoverTrigger>
+                              <Box
+                                tabIndex="0"
+                                role="button"
+                                aria-label="Some box"
+                              />
+                            </PopoverTrigger>
+                            <PopoverContent bg="tomato" color="white">
+                              <PopoverHeader fontWeight="semibold">
+                                Customization
+                              </PopoverHeader>
+                              <PopoverArrow bg="pink.500" />
+                              <PopoverCloseButton bg="purple.500" />
+                              <PopoverBody>
+                                Tadaa!! The arrow color and background color is
+                                customized. Check the props for each component.
+                              </PopoverBody>
+                            </PopoverContent>
+                          </Popover>
                         </Td>
                         <Td fontSize={"small"}>{board.boardLikeCount}</Td>
                         <Td fontSize={"small"}>{board.boardViewCount}</Td>

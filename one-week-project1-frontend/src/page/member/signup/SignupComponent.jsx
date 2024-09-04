@@ -67,6 +67,12 @@ export function SignupComponent() {
   let nicknameRegex = /^[가-힣0-9]{2,10}$/;
 
   useEffect(() => {
+    if (account.isLoggedIn()) {
+      account.logout();
+    }
+  }, [account]);
+
+  useEffect(() => {
     if (selectedDomain !== "") {
       setDomain(selectedDomain);
     } else {

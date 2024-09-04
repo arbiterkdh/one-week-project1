@@ -65,6 +65,7 @@ public interface BoardMapper {
             <script>
             SELECT
                 b.board_id,
+                b.board_member_id,
                 b.board_type,
                 b.board_title,
                 b.board_inserted,

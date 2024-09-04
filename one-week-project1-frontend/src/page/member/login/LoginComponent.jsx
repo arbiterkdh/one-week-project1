@@ -1,5 +1,5 @@
 import { LoginContext } from "../../../LoginProvider.jsx";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
   Box,
@@ -36,6 +36,12 @@ export function LoginComponent() {
 
   const [canShow, setCanShow] = useState(false);
   const [eye, setEye] = useState(false);
+
+  useEffect(() => {
+    if (account.isLoggedIn()) {
+      account.logout();
+    }
+  }, [account]);
 
   function handleLogin() {
     axios
